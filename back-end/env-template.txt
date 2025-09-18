@@ -1,0 +1,28 @@
+# Copy this file to .env and update the values
+
+# Database Configuration
+MONGODB_URI=mongodb+srv://hmydilshadkt_db_user:a6Vg41yvjtFGhZTx@cluster0.vjpziag.mongodb.net/
+
+# Server Configuration
+PORT=5000
+HOST=localhost
+NODE_ENV=development
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-here
+JWT_EXPIRES_IN=7d
+JWT_REFRESH_SECRET=your-super-secret-refresh-token-key-here
+JWT_REFRESH_EXPIRE=30d
+
+# Cloudinary Configuration (for image uploads)
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+
+# Email Configuration
+EMAIL_SERVICE=gmail
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+
+# CORS Configuration
+CORS_ORIGIN=http://localhost:3000
