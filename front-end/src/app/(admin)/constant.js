@@ -17,45 +17,53 @@ import {
   MdCategory,
   MdLocalOffer,
   MdReceipt,
+  MdOutlineLocationOn,
+  MdOutlinePayment,
 } from "react-icons/md";
+import { GrHomeOption } from "react-icons/gr";
+import { TbCalendarPlus, TbStars } from "react-icons/tb";
+import { LuCalendarDays, LuHotel, LuRocket } from "react-icons/lu";
+import { FiSettings, FiUsers } from "react-icons/fi";
+import { AiOutlineNotification } from "react-icons/ai";
+import { FaRegUserCircle } from "react-icons/fa";
 
 export const SIDEBAR_ITEMS = [
   {
     id: "dashboard",
     title: "Dashboard",
-    icon: MdDashboard,
-    path: "/admin/dashboard",
+    icon: GrHomeOption,
+    path: "/dashboard",
     hasSubItems: false,
   },
   {
     id: "manage-destinations",
     title: "Manage Destinations",
-    icon: MdLocationOn,
+    icon: MdOutlineLocationOn,
     hasSubItems: true,
     isExpanded: true,
     subItems: [
       {
         id: "package-list",
         title: "Package List",
-        path: "/admin/destinations/packages",
-        isDisabled: true,
+        path: "/dashboard/destinations/packages",
+        isDisabled: false,
       },
       {
         id: "category",
         title: "Category",
-        path: "/admin/destinations/category",
+        path: "/dashboard/destinations/category",
         isDisabled: false,
       },
       {
         id: "coupon-management",
         title: "Coupon Management",
-        path: "/admin/destinations/coupons",
+        path: "/dashboard/destinations/coupons",
         isDisabled: false,
       },
       {
         id: "transactions",
         title: "Transactions",
-        path: "/admin/destinations/transactions",
+        path: "/dashboard/destinations/transactions",
         isDisabled: false,
       },
     ],
@@ -63,61 +71,61 @@ export const SIDEBAR_ITEMS = [
   {
     id: "event-calendar",
     title: "Event Calendar",
-    icon: MdEvent,
-    path: "/admin/events",
+    icon: TbCalendarPlus,
+    path: "/dashboard/events",
     hasSubItems: false,
   },
   {
     id: "manage-bookings",
     title: "Manage Bookings",
-    icon: MdEventNote,
-    path: "/admin/bookings",
+    icon: LuCalendarDays,
+    path: "/dashboard/bookings",
     hasSubItems: false,
   },
   {
     id: "payment",
     title: "Payment",
-    icon: MdPayment,
-    path: "/admin/payments",
+    icon: MdOutlinePayment,
+    path: "/dashboard/payments",
     hasSubItems: false,
   },
   {
     id: "hotels",
     title: "Hotels",
-    icon: MdHotel,
-    path: "/admin/hotels",
+    icon: LuHotel,
+    path: "/dashboard/hotels",
     hasSubItems: false,
   },
   {
     id: "user-management",
     title: "User Management",
-    icon: MdPeople,
-    path: "/admin/users",
+    icon: FiUsers,
+    path: "/dashboard/users",
     hasSubItems: false,
   },
   {
     id: "seo-tools",
     title: "SEO Tools",
-    icon: MdRocket,
+    icon: LuRocket,
     hasSubItems: true,
     isExpanded: false,
     subItems: [
       {
         id: "seo-analytics",
         title: "SEO Analytics",
-        path: "/admin/seo/analytics",
+        path: "/dashboard/seo/analytics",
         isDisabled: false,
       },
       {
         id: "seo-optimization",
         title: "SEO Optimization",
-        path: "/admin/seo/optimization",
+        path: "/dashboard/seo/optimization",
         isDisabled: false,
       },
       {
         id: "seo-reports",
         title: "SEO Reports",
-        path: "/admin/seo/reports",
+        path: "/dashboard/seo/reports",
         isDisabled: false,
       },
     ],
@@ -125,15 +133,15 @@ export const SIDEBAR_ITEMS = [
   {
     id: "push-notification",
     title: "Push Notification",
-    icon: MdNotifications,
-    path: "/admin/notifications",
+    icon: AiOutlineNotification,
+    path: "/dashboard/notifications",
     hasSubItems: false,
   },
   {
     id: "ratings-reviews",
     title: "Ratings & Reviews",
-    icon: MdStar,
-    path: "/admin/reviews",
+    icon: TbStars,
+    path: "/dashboard/reviews",
     hasSubItems: false,
   },
 ];
@@ -142,15 +150,15 @@ export const ADMIN_SECTION_ITEMS = [
   {
     id: "admin-profile",
     title: "Admin",
-    icon: MdAdminPanelSettings,
-    path: "/admin/profile",
+    icon: FaRegUserCircle,
+    path: "/dashboard/profile",
     hasSubItems: false,
   },
   {
     id: "settings",
     title: "Settings",
-    icon: MdSettings,
-    path: "/admin/settings",
+    icon: FiSettings,
+    path: "/dashboard/settings",
     hasSubItems: false,
   },
 ];
