@@ -1,13 +1,10 @@
 "use client";
 import CategoryFilter from "@/app/(admin)/components/CategoryFilter";
 import CategoryList from "@/app/(admin)/components/CategoryList";
-import Header from "@/app/(admin)/components/shared/Header";
 
 const Categories = () => {
   return (
-    <section className="w-full h-full p-6 bg-gray-50">
-      <Header />
-
+    <section className="w-full h-full px-6 pb-6 ">
       {/* Filter Section */}
       <CategoryFilter />
 

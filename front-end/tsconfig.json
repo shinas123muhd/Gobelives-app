@@ -23,6 +23,14 @@
       }
     ]
   },
-  "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "src/app/(admin)/dashboard/properties/page.jsx", "src/app/(admin)/dashboard/users/page.jsx"],
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/app/(admin)/dashboard/properties/page.jsx",
+    "src/app/(admin)/dashboard/users/page.jsx",
+    "src/app/(admin)/dashboard/events/page.jsx"
+  ],
   "exclude": ["node_modules"]
 }
