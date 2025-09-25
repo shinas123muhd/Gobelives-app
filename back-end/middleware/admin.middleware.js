@@ -9,6 +9,8 @@ export const adminMiddleware = (req, res, next) => {
       });
     }
 
+ 
+
     // Check if user has admin role
     if (!req.user.isAdmin()) {
       return res.status(403).json({

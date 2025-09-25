@@ -1,13 +1,22 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { toast } from "react-hot-toast";
-import PackageForm from "./components/PackageForm";
-import { useCreatePackage } from "../../../../hooks/usePackages";
+import PackageForm from "../../create/components/PackageForm";
+import {
+  usePackage,
+  useUpdatePackage,
+  useDeletePackageImage,
+} from "../../../../../hooks/usePackages";
 
-const CreatePackage = () => {
+const EditPackage = () => {
   const router = useRouter();
-  const createPackage = useCreatePackage();
+  const params = useParams();
+  const packageId = params.id;
+
+  const { data: packageData, isLoading, error } = usePackage(packageId);
+  const updatePackage = useUpdatePackage();
+  const deletePackageImage = useDeletePackageImage();
 
   const [formData, setFormData] = useState({
     // Basic Information
@@ -94,7 +103,7 @@ const CreatePackage = () => {
 
   // Feature highlights state
   const [featureHighlight, setFeatureHighlight] = useState({
-    icon: "star", // Default to a valid enum value
+    icon: "star",
     name: "",
     description: "",
   });
@@ -145,6 +154,77 @@ const CreatePackage = () => {
     },
   ];
 
+  // Populate form data when package data is loaded
+  useEffect(() => {
+    if (packageData?.data) {
+      const data = packageData.data;
+      setFormData({
+        title: data.title || "",
+        description: data.description || "",
+        shortDescription: data.shortDescription || "",
+        location: {
+          address: data.location?.address || "",
+          city: data.location?.city || "",
+          state: data.location?.state || "",
+          country: data.location?.country || "",
+          link: data.location?.link || "",
+        },
+        meetingPoint: {
+          address: data.meetingPoint?.address || "",
+          instructions: data.meetingPoint?.instructions || "",
+        },
+        price: {
+          basePrice: data.price?.basePrice || "",
+          currency: data.price?.currency || "USD",
+          priceIncludes: data.price?.priceIncludes || [],
+          priceExcludes: data.price?.priceExcludes || [],
+        },
+        capacity: {
+          maxGuests: data.capacity?.maxGuests || "",
+          minGuests: data.capacity?.minGuests || "1",
+        },
+        duration: {
+          value: data.duration?.value || "",
+          unit: data.duration?.unit || "days",
+        },
+        activities: data.activities || [],
+        whatsInside: data.whatsInside || [],
+        languages: data.languages || [],
+        tags: data.tags || [],
+        category: data.category || "",
+        cancellationPolicy: data.cancellationPolicy || "moderate",
+        cancellationDetails: data.cancellationDetails || {},
+        healthSafetyMeasures: data.healthSafetyMeasures || [],
+        transportation: {
+          included: data.transportation?.included || false,
+          type: data.transportation?.type || "",
+          details: data.transportation?.details || "",
+        },
+        availableDates: {
+          startDate: data.availableDates?.startDate || "",
+          endDate: data.availableDates?.endDate || "",
+          blackoutDates: data.availableDates?.blackoutDates || [],
+        },
+        schedule: {
+          startTime: data.schedule?.startTime || "",
+          endTime: data.schedule?.endTime || "",
+          duration: data.schedule?.duration || "",
+        },
+        visibility: data.visibility || "public",
+        metaTitle: data.metaTitle || "",
+        metaDescription: data.metaDescription || "",
+        keywords: data.keywords || [],
+        images: data.images || [],
+        coverImage: data.coverImage || "",
+        status: data.status || "draft",
+        featured: data.featured || false,
+      });
+
+      // Set feature highlights
+      setFeatureHighlights(data.featureHighlights || []);
+    }
+  }, [packageData]);
+
   const handleInputChange = (field, value) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".");
@@ -162,23 +242,14 @@ const CreatePackage = () => {
       }));
     }
 
-    // Real-time validation
-    const fieldErrors = validateField(field, value);
-    setErrors((prev) => {
-      const newErrors = { ...prev };
-
-      // Remove existing error for this field
-      if (newErrors[field]) {
+    // Clear related errors when field changes
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
         delete newErrors[field];
-      }
-
-      // Add new error if validation fails
-      if (Object.keys(fieldErrors).length > 0) {
-        Object.assign(newErrors, fieldErrors);
-      }
-
-      return newErrors;
-    });
+        return newErrors;
+      });
+    }
   };
 
   const handleArrayChange = (field, value) => {
@@ -303,12 +374,12 @@ const CreatePackage = () => {
   const addFeatureHighlight = () => {
     if (featureHighlight.name && featureHighlight.description) {
       const newFeature = {
-        icon: featureHighlight.icon || "star", // Default icon if none provided
+        icon: featureHighlight.icon || "star",
         name: featureHighlight.name,
         description: featureHighlight.description,
       };
       setFeatureHighlights((prev) => [...prev, newFeature]);
-      setFeatureHighlight({ icon: "", name: "", description: "" });
+      setFeatureHighlight({ icon: "star", name: "", description: "" });
     }
   };
 
@@ -317,14 +388,13 @@ const CreatePackage = () => {
   };
 
   const addPredefinedFeature = (feature) => {
-    // Check if feature already exists
     const exists = featureHighlights.some(
       (highlight) => highlight.name === feature.name
     );
 
     if (!exists) {
       const newFeature = {
-        icon: feature.icon || "star", // Use the predefined icon or default to star
+        icon: feature.icon || "star",
         name: feature.name,
         description: feature.description,
       };
@@ -343,6 +413,19 @@ const CreatePackage = () => {
       ...prev,
       images: files,
     }));
+  };
+
+  const handleFileRemove = async (imageToRemove) => {
+    try {
+      await deletePackageImage.mutateAsync({
+        packageId,
+        imageId: imageToRemove._id,
+      });
+      toast.success("Image deleted successfully");
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      toast.error("Failed to delete image. Please try again.");
+    }
   };
 
   const validateForm = () => {
@@ -371,20 +454,9 @@ const CreatePackage = () => {
     }
 
     // Location Validation - Made more lenient for testing
-    // if (!formData.location.address.trim()) {
-    //   errors["location.address"] = "Address is required";
-    // }
     if (!formData.location.city.trim()) {
       errors["location.city"] = "City is required";
     }
-    // if (!formData.location.country.trim()) {
-    //   errors["location.country"] = "Country is required";
-    // }
-
-    // Meeting Point Validation - Made optional for now
-    // if (!formData.meetingPoint.address.trim()) {
-    //   errors["meetingPoint.address"] = "Meeting point address is required";
-    // }
 
     // Price Validation
     if (!formData.price.basePrice) {
@@ -417,24 +489,6 @@ const CreatePackage = () => {
       errors["capacity.maxGuests"] = "Maximum guests cannot exceed 100";
     }
 
-    if (
-      formData.capacity.minGuests &&
-      (isNaN(formData.capacity.minGuests) ||
-        parseInt(formData.capacity.minGuests) < 1)
-    ) {
-      errors["capacity.minGuests"] = "Minimum guests must be at least 1";
-    }
-
-    if (
-      formData.capacity.minGuests &&
-      formData.capacity.maxGuests &&
-      parseInt(formData.capacity.minGuests) >
-        parseInt(formData.capacity.maxGuests)
-    ) {
-      errors["capacity.minGuests"] =
-        "Minimum guests cannot be greater than maximum guests";
-    }
-
     // Duration Validation - Made more lenient for testing
     if (
       formData.duration.value &&
@@ -448,11 +502,6 @@ const CreatePackage = () => {
     ) {
       errors["duration.value"] = "Duration cannot exceed 365 days";
     }
-
-    // Duration unit is optional for now
-    // if (!formData.duration.unit) {
-    //   errors["duration.unit"] = "Duration unit is required";
-    // }
 
     // Category Validation
     if (!formData.category) {
@@ -539,12 +588,10 @@ const CreatePackage = () => {
       formData.price.priceIncludes &&
       formData.price.priceIncludes.length > 0
     ) {
-      // Filter out empty items before validation
       const validIncludes = formData.price.priceIncludes.filter(
         (item) => item && item.trim()
       );
       if (validIncludes.length !== formData.price.priceIncludes.length) {
-        // Update the form data to remove empty items
         handleInputChange("price.priceIncludes", validIncludes);
       }
     }
@@ -553,12 +600,10 @@ const CreatePackage = () => {
       formData.price.priceExcludes &&
       formData.price.priceExcludes.length > 0
     ) {
-      // Filter out empty items before validation
       const validExcludes = formData.price.priceExcludes.filter(
         (item) => item && item.trim()
       );
       if (validExcludes.length !== formData.price.priceExcludes.length) {
-        // Update the form data to remove empty items
         handleInputChange("price.priceExcludes", validExcludes);
       }
     }
@@ -725,27 +770,65 @@ const CreatePackage = () => {
         });
       }
 
-      // Create package using the hook
-      await createPackage.mutateAsync(submitData);
+      // Update package using the hook
+      await updatePackage.mutateAsync({ id: packageId, data: submitData });
 
-      toast.success("Package created successfully!");
+      toast.success("Package updated successfully!");
       router.push("/dashboard/destinations/packages");
     } catch (error) {
-      console.error("Error creating package:", error);
+      console.error("Error updating package:", error);
       toast.error(
         error.response?.data?.message ||
-          "Failed to create package. Please try again."
+          "Failed to update package. Please try again."
       );
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1D332C] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading package...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading package</p>
+          <p className="text-gray-600">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!packageData?.data) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Package not found</p>
+          <button
+            onClick={() => router.push("/dashboard/destinations/packages")}
+            className="text-blue-600 hover:text-blue-800"
+          >
+            Back to packages
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section className="w-full h-full p-6 overflow-y-auto">
-      <div className="max-w-7xl mx-auto ">
+      <div className="max-w-7xl mx-auto">
         <PackageForm
           formData={formData}
           errors={errors}
-          loading={createPackage.isPending}
+          loading={updatePackage.isPending}
           featureHighlight={featureHighlight}
           setFeatureHighlight={setFeatureHighlight}
           featureHighlights={featureHighlights}
@@ -758,11 +841,13 @@ const CreatePackage = () => {
           addPredefinedFeature={addPredefinedFeature}
           isFeatureSelected={isFeatureSelected}
           handleFileUpload={handleFileUpload}
+          handleFileRemove={handleFileRemove}
           handleSubmit={handleSubmit}
+          isEditMode={true}
         />
       </div>
     </section>
   );
 };
 
-export default CreatePackage;
+export default EditPackage;

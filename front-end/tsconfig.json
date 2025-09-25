@@ -31,6 +31,6 @@
     "src/app/(admin)/dashboard/properties/page.jsx",
     "src/app/(admin)/dashboard/users/page.jsx",
     "src/app/(admin)/dashboard/events/page.jsx"
-  ],
+, "src/app/(admin)/admin/login/page.jsx"  ],
   "exclude": ["node_modules"]
 }

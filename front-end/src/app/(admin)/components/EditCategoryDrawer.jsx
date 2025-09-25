@@ -5,6 +5,8 @@ import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import { IoImageOutline } from "react-icons/io5";
 import Image from "next/image";
+import { useUpdateCategory } from "../hooks/useCategory";
+import { toast } from "react-hot-toast";
 
 const EditCategoryDrawer = ({ isOpen, onClose, category }) => {
   const [formData, setFormData] = useState({
@@ -15,7 +17,10 @@ const EditCategoryDrawer = ({ isOpen, onClose, category }) => {
     currentImage: null,
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Use the update category hook
+  const updateCategory = useUpdateCategory();
 
   const statusOptions = [
     { value: "active", label: "Active" },
@@ -28,11 +33,12 @@ const EditCategoryDrawer = ({ isOpen, onClose, category }) => {
       setFormData({
         name: category.name || "",
         description: category.description || "",
-        status: category.active ? "active" : "inactive",
+        status: category.isActive ? "active" : "inactive",
         image: null,
-        currentImage: category.image || null,
+        currentImage: category.image?.url || null,
       });
       setErrors({});
+      setImagePreview(null);
     }
   }, [category]);
 
@@ -59,6 +65,13 @@ const EditCategoryDrawer = ({ isOpen, onClose, category }) => {
         image: file,
         currentImage: null, // Clear current image when new one is selected
       }));
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -84,29 +97,31 @@ const EditCategoryDrawer = ({ isOpen, onClose, category }) => {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      // TODO: Implement API call to update category
-      console.log("Updating category:", { id: category.id, ...formData });
+      // Create FormData for file upload
+      const submitData = new FormData();
+      submitData.append("name", formData.name);
+      submitData.append("description", formData.description);
+      submitData.append("status", formData.status);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (formData.image) {
+        submitData.append("image", formData.image);
+      }
+
+      await updateCategory.mutateAsync({ id: category._id, data: submitData });
 
       // Close drawer
       onClose();
 
-      // TODO: Show success message and refresh category list
+      toast.success("Category updated successfully");
     } catch (error) {
       console.error("Error updating category:", error);
-      // TODO: Show error message
-    } finally {
-      setIsSubmitting(false);
+      toast.error(error.response?.data?.message || "Failed to update category");
     }
   };
 
   const handleClose = () => {
-    if (!isSubmitting) {
+    if (!updateCategory.isPending) {
       setFormData({
         name: "",
         description: "",
@@ -115,6 +130,7 @@ const EditCategoryDrawer = ({ isOpen, onClose, category }) => {
         currentImage: null,
       });
       setErrors({});
+      setImagePreview(null);
       onClose();
     }
   };
@@ -172,53 +188,106 @@ const EditCategoryDrawer = ({ isOpen, onClose, category }) => {
             />
           </div>
 
-          {/* Current Image Display */}
-          {formData.currentImage && !formData.image && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Current Image
-              </label>
-              <div className="relative w-full h-32 bg-gray-100 rounded-lg overflow-hidden">
-                <Image
-                  src={formData.currentImage}
-                  alt="Current category image"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* New Image Upload */}
+          {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {formData.currentImage ? "Update Image" : "Category Image"}
+              Category Image
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-                id="edit-category-image"
-              />
-              <label
-                htmlFor="edit-category-image"
-                className="cursor-pointer flex flex-col items-center"
-              >
-                <IoImageOutline className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-600">
-                  {formData.image
-                    ? formData.image.name
-                    : formData.currentImage
-                    ? "Click to change image"
-                    : "Click to upload image"}
-                </span>
-                <span className="text-xs text-gray-500 mt-1">
-                  PNG, JPG up to 10MB
-                </span>
-              </label>
-            </div>
+
+            {imagePreview ? (
+              <div className="space-y-3">
+                {/* New Image Preview */}
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="New category preview"
+                    className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImagePreview(null);
+                      setFormData((prev) => ({ ...prev, image: null }));
+                      // Reset file input
+                      const fileInput = document.getElementById(
+                        "edit-category-image"
+                      );
+                      if (fileInput) fileInput.value = "";
+                    }}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                {/* File Info */}
+                <div className="text-sm text-gray-600">
+                  <p>New image: {formData.image?.name}</p>
+                  <p className="text-xs text-gray-500">
+                    Size: {(formData.image?.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              </div>
+            ) : formData.currentImage ? (
+              <div className="space-y-3">
+                {/* Current Image Display */}
+                <div className="relative">
+                  <img
+                    src={formData.currentImage}
+                    alt="Current category image"
+                    className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <span className="text-white text-sm">Current Image</span>
+                  </div>
+                </div>
+
+                {/* Upload New Image */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    id="edit-category-image"
+                  />
+                  <label
+                    htmlFor="edit-category-image"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
+                    <IoImageOutline className="w-6 h-6 text-gray-400 mb-1" />
+                    <span className="text-sm text-gray-600">
+                      Click to change image
+                    </span>
+                    <span className="text-xs text-gray-500 mt-1">
+                      PNG, JPG up to 10MB
+                    </span>
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="edit-category-image"
+                />
+                <label
+                  htmlFor="edit-category-image"
+                  className="cursor-pointer flex flex-col items-center"
+                >
+                  <IoImageOutline className="w-8 h-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-600">
+                    Click to upload image
+                  </span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    PNG, JPG up to 10MB
+                  </span>
+                </label>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -227,13 +296,17 @@ const EditCategoryDrawer = ({ isOpen, onClose, category }) => {
               type="button"
               variant="outline"
               onClick={handleClose}
-              disabled={isSubmitting}
+              disabled={updateCategory.isPending}
               className="flex-1"
             >
               Cancel
             </Button>
-            <Button type="submit" loading={isSubmitting} className="flex-1">
-              {isSubmitting ? "Updating..." : "Update Category"}
+            <Button
+              type="submit"
+              loading={updateCategory.isPending}
+              className="flex-1"
+            >
+              {updateCategory.isPending ? "Updating..." : "Update Category"}
             </Button>
           </div>
         </form>

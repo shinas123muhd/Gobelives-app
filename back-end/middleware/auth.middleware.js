@@ -25,11 +25,19 @@ export const authMiddleware = async (req, res, next) => {
     }
 
     try {
+      // Check if JWT secret is configured
+      if (!config.jwt.secret || config.jwt.secret === "your-secret-key") {
+        return res.status(500).json({
+          success: false,
+          message: "Server configuration error",
+        });
+      }
+
       // Verify token
       const decoded = jwt.verify(token, config.jwt.secret);
 
       // Get user from token
-      const user = await User.findById(decoded.id).select("-password");
+      const user = await User.findById(decoded.userId).select("-password");
 
       if (!user) {
         return res.status(401).json({
@@ -57,7 +65,6 @@ export const authMiddleware = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.error("Auth middleware error:", error);
     return res.status(500).json({
       success: false,
       message: "Server error in authentication",

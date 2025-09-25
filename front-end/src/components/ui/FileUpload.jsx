@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   IoCloudUploadOutline,
   IoImageOutline,
@@ -11,6 +11,7 @@ const FileUpload = ({
   maxFiles = 5,
   maxSize = 5 * 1024 * 1024, // 5MB
   onFilesChange,
+  onFileRemove,
   existingFiles = [],
   className = "",
   error = false,
@@ -18,9 +19,14 @@ const FileUpload = ({
   required = false,
 }) => {
   const fileInputRef = useRef(null);
-  const [files, setFiles] = useState(existingFiles);
+  const [files, setFiles] = useState(existingFiles || []);
   const [isDragOver, setIsDragOver] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Update files when existingFiles prop changes
+  useEffect(() => {
+    setFiles(existingFiles || []);
+  }, [existingFiles]);
 
   const handleFileSelect = (selectedFiles) => {
     const fileArray = Array.from(selectedFiles);
@@ -74,9 +80,19 @@ const FileUpload = ({
   };
 
   const removeFile = (index) => {
+    const fileToRemove = files[index];
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
     onFilesChange?.(newFiles);
+
+    // If it's an existing image (has publicId), call the remove callback
+    if (
+      fileToRemove &&
+      !(fileToRemove instanceof File) &&
+      fileToRemove.publicId
+    ) {
+      onFileRemove?.(fileToRemove);
+    }
   };
 
   const openFileDialog = () => {
@@ -136,12 +152,25 @@ const FileUpload = ({
       {files.length > 0 && (
         <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {files.map((file, index) => (
-            <div key={index} className="relative group">
+            <div
+              key={
+                file instanceof File
+                  ? `new-${index}`
+                  : `existing-${file._id || index}`
+              }
+              className="relative group"
+            >
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 {file instanceof File ? (
                   <img
                     src={URL.createObjectURL(file)}
                     alt={file.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : file.url ? (
+                  <img
+                    src={file.url}
+                    alt={file.altText || "Image"}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -150,6 +179,20 @@ const FileUpload = ({
                   </div>
                 )}
               </div>
+              {/* Existing file indicator */}
+              {!file instanceof File && file.url && (
+                <div className="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 py-0.5 rounded">
+                  Existing
+                </div>
+              )}
+
+              {/* New file indicator */}
+              {file instanceof File && (
+                <div className="absolute top-1 left-1 bg-green-500 text-white text-xs px-1 py-0.5 rounded">
+                  New
+                </div>
+              )}
+
               <button
                 type="button"
                 onClick={() => removeFile(index)}

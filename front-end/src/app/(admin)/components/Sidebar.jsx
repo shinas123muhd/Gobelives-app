@@ -6,9 +6,12 @@ import {
   MdKeyboardArrowRight,
   MdOutlineKeyboardArrowDown,
 } from "react-icons/md";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Sidebar = () => {
   const router = useRouter();
+  const { user } = useAuth();
+
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState({
     "manage-destinations": true,

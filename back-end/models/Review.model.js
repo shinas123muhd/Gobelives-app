@@ -20,7 +20,12 @@ const reviewSchema = new mongoose.Schema({
   property: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Property", // References the Property model
-    required: true,
+    required: false,
+  },
+  package: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Package", // References the Package model
+    required: false,
   },
   // Useful for sorting and management
   createdAt: {
@@ -35,7 +40,20 @@ const reviewSchema = new mongoose.Schema({
 });
 
 // Compound index to ensure a user can only leave one review per property
-reviewSchema.index({ author: 1, property: 1 }, { unique: true });
+reviewSchema.index({ author: 1, property: 1 }, { unique: true, sparse: true });
+// Compound index to ensure a user can only leave one review per package
+reviewSchema.index({ author: 1, package: 1 }, { unique: true, sparse: true });
+
+// Validation to ensure either property or package is provided
+reviewSchema.pre("validate", function (next) {
+  if (!this.property && !this.package) {
+    return next(new Error("Either property or package must be specified"));
+  }
+  if (this.property && this.package) {
+    return next(new Error("Cannot specify both property and package"));
+  }
+  next();
+});
 
 // Optional: A pre-save hook to update the `updatedAt` field
 reviewSchema.pre("save", function (next) {

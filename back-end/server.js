@@ -17,8 +17,20 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Import models to register them with Mongoose
+import "./models/User.model.js";
+import "./models/Property.model.js";
+import "./models/Category.model.js";
+import "./models/Package.model.js";
+import "./models/Review.model.js";
+import "./models/Booking.model.js";
+
 // Import routes
 import propertyRoutes from "./routes/property.routes.js";
+import categoryRoutes from "./routes/category.routes.js";
+import categoryPublicRoutes from "./routes/categoryPublic.routes.js";
+import packageRoutes from "./routes/package.routes.js";
+import packagePublicRoutes from "./routes/packagePublic.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 // import userRoutes from "./routes/user.routes.js";
 // import adminRoutes from "./routes/admin.routes.js";
@@ -73,6 +85,10 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 // app.use("/api/users", userRoutes);
 app.use("/api/properties", propertyRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/categories", categoryPublicRoutes);
+app.use("/api/packages", packageRoutes);
+app.use("/api/packages", packagePublicRoutes);
 // app.use("/api/admin", adminRoutes);
 // app.use("/api/bookings", bookingRoutes);
 // app.use("/api/reviews", reviewRoutes);

@@ -3,34 +3,50 @@ import Select from "@/components/ui/Select";
 import { IoSearchOutline, IoAddCircleOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 
-const PackageFilter = () => {
-  const [statusFilter, setStatusFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+const PackageFilter = ({ filters, onFiltersChange }) => {
   const router = useRouter();
 
   const statusOptions = [
-    { value: "all", label: "Status: All" },
+    { value: "", label: "Status: All" },
     { value: "active", label: "Active" },
     { value: "inactive", label: "Inactive" },
-  ];
-
-  const dateOptions = [
-    { value: "all", label: "Filter by date range" },
-    { value: "7days", label: "Last 7 days" },
-    { value: "30days", label: "Last 30 days" },
-    { value: "3months", label: "Last 3 months" },
+    { value: "draft", label: "Draft" },
+    { value: "suspended", label: "Suspended" },
   ];
 
   const categoryOptions = [
-    { value: "all", label: "All Categories" },
-    { value: "beach", label: "Beach" },
-    { value: "mountain", label: "Mountain" },
-    { value: "city", label: "City" },
+    { value: "", label: "All Categories" },
+    { value: "tour", label: "Tour" },
+    { value: "activity", label: "Activity" },
+    { value: "experience", label: "Experience" },
+    { value: "attraction", label: "Attraction" },
+    { value: "accommodation", label: "Accommodation" },
+  ];
+
+  const featuredOptions = [
+    { value: "", label: "All Packages" },
+    { value: "true", label: "Featured Only" },
+    { value: "false", label: "Non-Featured" },
   ];
 
   const handleCreatePackage = () => {
     router.push("/dashboard/destinations/packages/create");
+  };
+
+  const handleSearchChange = (e) => {
+    onFiltersChange({ searchTerm: e.target.value });
+  };
+
+  const handleStatusChange = (value) => {
+    onFiltersChange({ statusFilter: value });
+  };
+
+  const handleCategoryChange = (value) => {
+    onFiltersChange({ categoryFilter: value });
+  };
+
+  const handleFeaturedChange = (value) => {
+    onFiltersChange({ featuredFilter: value });
   };
 
   return (
@@ -42,6 +58,8 @@ const PackageFilter = () => {
           <input
             type="text"
             placeholder="Search packages..."
+            value={filters.searchTerm}
+            onChange={handleSearchChange}
             className="pr-10 pl-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 
                placeholder:text-[#8B909A] w-64"
           />
@@ -50,8 +68,8 @@ const PackageFilter = () => {
         {/* Category Filter */}
         <Select
           options={categoryOptions}
-          value={categoryFilter}
-          onChange={setCategoryFilter}
+          value={filters.categoryFilter}
+          onChange={handleCategoryChange}
           placeholder="All Categories"
           className="w-40"
         />
@@ -59,19 +77,19 @@ const PackageFilter = () => {
         {/* Status Filter */}
         <Select
           options={statusOptions}
-          value={statusFilter}
-          onChange={setStatusFilter}
+          value={filters.statusFilter}
+          onChange={handleStatusChange}
           placeholder="Status: All"
           className="w-40"
         />
 
-        {/* Date Filter */}
+        {/* Featured Filter */}
         <Select
-          options={dateOptions}
-          value={dateFilter}
-          onChange={setDateFilter}
-          placeholder="Filter by date range"
-          className="w-48"
+          options={featuredOptions}
+          value={filters.featuredFilter}
+          onChange={handleFeaturedChange}
+          placeholder="All Packages"
+          className="w-40"
         />
       </div>
 

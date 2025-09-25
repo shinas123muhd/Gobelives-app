@@ -5,6 +5,8 @@ import {
   IoTimeOutline,
   IoCarOutline,
   IoPeopleOutline,
+  IoStarOutline,
+  IoStar,
 } from "react-icons/io5";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { MdLockOpen, MdLock } from "react-icons/md";
@@ -13,7 +15,9 @@ const PackageCard = ({
   package: packageData,
   onEdit,
   onDelete,
-  onToggleStatus,
+  onToggleFeatured,
+  isDeleting = false,
+  isToggling = false,
 }) => {
   const renderStars = (rating) => {
     const stars = [];
@@ -37,16 +41,28 @@ const PackageCard = ({
       {/* Package Image */}
       <div className="relative overflow-hidden rounded-t-xl min-h-48">
         <Image
-          src={packageData.image}
+          src={
+            packageData.coverImage?.url ||
+            packageData.images?.[0]?.url ||
+            "/placeholder-package.jpg"
+          }
           alt={packageData.title}
           fill
           className="object-cover"
         />
+        {/* Featured Badge */}
+        {packageData.featured && (
+          <div className="absolute top-3 left-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+            Featured
+          </div>
+        )}
         {/* Location Tag */}
         <div className="absolute top-3 right-3 bg-gray-600 bg-opacity-80 rounded-full px-3 py-1 flex items-center gap-1">
           <IoLocationOutline className="text-white text-sm" />
           <span className="text-white text-xs font-medium">
-            {packageData.location}
+            {packageData.location?.city ||
+              packageData.location?.country ||
+              "Unknown"}
           </span>
         </div>
       </div>
@@ -62,15 +78,17 @@ const PackageCard = ({
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2 text-gray-600 text-[13px]">
             <IoTimeOutline className="text-base" />
-            <span>{packageData.duration}</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600 text-[13px]">
-            <IoCarOutline className="text-base" />
-            <span>{packageData.transport}</span>
+            <span>
+              {packageData.duration?.value} {packageData.duration?.unit}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-gray-600 text-[13px]">
             <IoPeopleOutline className="text-base" />
-            <span>{packageData.plan}</span>
+            <span>Max {packageData.capacity?.maxGuests} guests</span>
+          </div>
+          <div className="flex items-center gap-2 text-gray-600 text-[13px]">
+            <IoLocationOutline className="text-base" />
+            <span>{packageData.category || "Package"}</span>
           </div>
         </div>
 
@@ -82,17 +100,17 @@ const PackageCard = ({
           <div>
             {/* Rating */}
             <div className="flex items-center gap-1 mb-1">
-              {renderStars(packageData.rating)}
+              {renderStars(packageData.ratings?.average || 0)}
             </div>
             <p className="text-gray-500 text-xs">
-              {packageData.reviews} reviews
+              {packageData.ratings?.count || 0} reviews
             </p>
           </div>
 
           {/* Price */}
           <div className="text-right">
             <p className="text-gray-800 text-xl font-bold">
-              ${packageData.price}
+              ${packageData.price?.basePrice || 0}
             </p>
             <p className="text-gray-600 text-xs">per person</p>
           </div>
@@ -108,23 +126,29 @@ const PackageCard = ({
             <FiEdit className="text-lg" />
           </button>
           <button
-            onClick={() => onToggleStatus(packageData)}
+            onClick={() => onToggleFeatured(packageData)}
+            disabled={isToggling}
             className={`p-2 rounded-lg transition-colors ${
-              packageData.active
-                ? "text-green-400 hover:text-green-300 hover:bg-green-100"
-                : "text-red-400 hover:text-red-300 hover:bg-red-100"
-            }`}
-            title={packageData.active ? "Deactivate" : "Activate"}
+              packageData.featured
+                ? "text-yellow-400 hover:text-yellow-300 hover:bg-yellow-100"
+                : "text-gray-400 hover:text-yellow-400 hover:bg-yellow-100"
+            } ${isToggling ? "opacity-50 cursor-not-allowed" : ""}`}
+            title={
+              packageData.featured ? "Remove from featured" : "Add to featured"
+            }
           >
-            {packageData.active ? (
-              <MdLockOpen className="text-lg" />
+            {packageData.featured ? (
+              <IoStar className="text-lg" />
             ) : (
-              <MdLock className="text-lg" />
+              <IoStarOutline className="text-lg" />
             )}
           </button>
           <button
             onClick={() => onDelete(packageData)}
-            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-100 rounded-lg transition-colors"
+            disabled={isDeleting}
+            className={`p-2 text-gray-400 hover:text-red-400 hover:bg-red-100 rounded-lg transition-colors ${
+              isDeleting ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             title="Delete package"
           >
             <FiTrash2 className="text-lg" />

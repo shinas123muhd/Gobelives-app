@@ -4,6 +4,8 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import { IoImageOutline } from "react-icons/io5";
+import { useCreateCategory } from "../hooks/useCategory";
+import { toast } from "react-hot-toast";
 
 const CreateCategoryDrawer = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -13,7 +15,10 @@ const CreateCategoryDrawer = ({ isOpen, onClose }) => {
     image: null,
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Use the create category hook
+  const createCategory = useCreateCategory();
 
   const statusOptions = [
     { value: "active", label: "Active" },
@@ -42,6 +47,13 @@ const CreateCategoryDrawer = ({ isOpen, onClose }) => {
         ...prev,
         image: file,
       }));
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -67,14 +79,18 @@ const CreateCategoryDrawer = ({ isOpen, onClose }) => {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      // TODO: Implement API call to create category
-      console.log("Creating category:", formData);
+      // Create FormData for file upload
+      const submitData = new FormData();
+      submitData.append("name", formData.name);
+      submitData.append("description", formData.description);
+      submitData.append("status", formData.status);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (formData.image) {
+        submitData.append("image", formData.image);
+      }
+
+      await createCategory.mutateAsync(submitData);
 
       // Reset form and close drawer
       setFormData({
@@ -84,19 +100,18 @@ const CreateCategoryDrawer = ({ isOpen, onClose }) => {
         image: null,
       });
       setErrors({});
+      setImagePreview(null);
       onClose();
 
-      // TODO: Show success message
+      toast.success("Category created successfully");
     } catch (error) {
       console.error("Error creating category:", error);
-      // TODO: Show error message
-    } finally {
-      setIsSubmitting(false);
+      toast.error(error.response?.data?.message || "Failed to create category");
     }
   };
 
   const handleClose = () => {
-    if (!isSubmitting) {
+    if (!createCategory.isPending) {
       setFormData({
         name: "",
         description: "",
@@ -104,6 +119,7 @@ const CreateCategoryDrawer = ({ isOpen, onClose }) => {
         image: null,
       });
       setErrors({});
+      setImagePreview(null);
       onClose();
     }
   };
@@ -166,29 +182,63 @@ const CreateCategoryDrawer = ({ isOpen, onClose }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Category Image
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-                id="category-image"
-              />
-              <label
-                htmlFor="category-image"
-                className="cursor-pointer flex flex-col items-center"
-              >
-                <IoImageOutline className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-600">
-                  {formData.image
-                    ? formData.image.name
-                    : "Click to upload image"}
-                </span>
-                <span className="text-xs text-gray-500 mt-1">
-                  PNG, JPG up to 10MB
-                </span>
-              </label>
-            </div>
+
+            {imagePreview ? (
+              <div className="space-y-3">
+                {/* Image Preview */}
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Category preview"
+                    className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImagePreview(null);
+                      setFormData((prev) => ({ ...prev, image: null }));
+                      // Reset file input
+                      const fileInput =
+                        document.getElementById("category-image");
+                      if (fileInput) fileInput.value = "";
+                    }}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                {/* File Info */}
+                <div className="text-sm text-gray-600">
+                  <p>Selected: {formData.image?.name}</p>
+                  <p className="text-xs text-gray-500">
+                    Size: {(formData.image?.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="category-image"
+                />
+                <label
+                  htmlFor="category-image"
+                  className="cursor-pointer flex flex-col items-center"
+                >
+                  <IoImageOutline className="w-8 h-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-600">
+                    Click to upload image
+                  </span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    PNG, JPG up to 10MB
+                  </span>
+                </label>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -197,13 +247,17 @@ const CreateCategoryDrawer = ({ isOpen, onClose }) => {
               type="button"
               variant="outline"
               onClick={handleClose}
-              disabled={isSubmitting}
+              disabled={createCategory.isPending}
               className="flex-1"
             >
               Cancel
             </Button>
-            <Button type="submit" loading={isSubmitting} className="flex-1">
-              {isSubmitting ? "Creating..." : "Create Category"}
+            <Button
+              type="submit"
+              loading={createCategory.isPending}
+              className="flex-1"
+            >
+              {createCategory.isPending ? "Creating..." : "Create Category"}
             </Button>
           </div>
         </form>

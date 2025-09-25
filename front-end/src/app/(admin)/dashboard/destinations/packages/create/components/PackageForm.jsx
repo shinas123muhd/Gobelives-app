@@ -24,13 +24,17 @@ const PackageForm = ({
   setFeatureHighlight,
   featureHighlights,
   predefinedFeatures,
+  iconOptions,
   handleInputChange,
   handleArrayChange,
   addFeatureHighlight,
   removeFeatureHighlight,
   addPredefinedFeature,
+  isFeatureSelected,
   handleFileUpload,
+  handleFileRemove,
   handleSubmit,
+  isEditMode = false,
 }) => {
   const categoryOptions = [
     { value: "tour", label: "Tour" },
@@ -150,12 +154,7 @@ const PackageForm = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Select
                   placeholder="Icon"
-                  options={[
-                    { value: "star", label: "Star" },
-                    { value: "heart", label: "Heart" },
-                    { value: "shield", label: "Shield" },
-                    { value: "checkmark", label: "Checkmark" },
-                  ]}
+                  options={iconOptions}
                   value={featureHighlight.icon}
                   onChange={(value) =>
                     setFeatureHighlight((prev) => ({ ...prev, icon: value }))
@@ -199,27 +198,61 @@ const PackageForm = ({
                 <h4 className="text-sm font-medium text-gray-700">
                   Quick Add Features:
                 </h4>
-                {predefinedFeatures.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{feature.name}</div>
-                      <div className="text-xs text-gray-600">
-                        {feature.description}
+                {predefinedFeatures.map((feature, index) => {
+                  const isSelected = isFeatureSelected(feature.name);
+                  return (
+                    <div
+                      key={index}
+                      className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
+                        isSelected
+                          ? "bg-green-50 border border-green-200 opacity-60"
+                          : "bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                      }`}
+                      onClick={() =>
+                        !isSelected && addPredefinedFeature(feature)
+                      }
+                    >
+                      <div className="flex-1">
+                        <div
+                          className={`font-medium text-sm ${
+                            isSelected ? "text-green-700" : "text-gray-900"
+                          }`}
+                        >
+                          {feature.name}
+                        </div>
+                        <div
+                          className={`text-xs ${
+                            isSelected ? "text-green-600" : "text-gray-600"
+                          }`}
+                        >
+                          {feature.description}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isSelected && (
+                          <span className="text-xs text-green-600 font-medium">
+                            Added
+                          </span>
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isSelected) {
+                              addPredefinedFeature(feature);
+                            }
+                          }}
+                          disabled={isSelected}
+                          className={isSelected ? "opacity-50" : ""}
+                        >
+                          {isSelected ? "✓" : "Add"}
+                        </Button>
                       </div>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => addPredefinedFeature(feature)}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Added Features */}
@@ -228,16 +261,24 @@ const PackageForm = ({
                   <h4 className="text-sm font-medium text-gray-700">
                     Added Features:
                   </h4>
-                  {featureHighlights.map((feature) => (
+                  {featureHighlights.map((feature, index) => (
                     <div
-                      key={feature.id}
-                      className="flex items-center justify-between p-3 bg-blue-50 rounded-lg"
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200"
                     >
                       <div className="flex-1">
-                        <div className="font-medium text-sm">
-                          {feature.name}
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-600 font-medium text-sm">
+                            {feature.icon === "star" && "⭐"}
+                            {feature.icon === "heart" && "❤️"}
+                            {feature.icon === "shield" && "🛡️"}
+                            {feature.icon === "checkmark" && "✅"}
+                          </span>
+                          <div className="font-medium text-sm text-blue-900">
+                            {feature.name}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-blue-700 mt-1">
                           {feature.description}
                         </div>
                       </div>
@@ -245,7 +286,8 @@ const PackageForm = ({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFeatureHighlight(feature.id)}
+                        onClick={() => removeFeatureHighlight(index)}
+                        className="hover:bg-red-100"
                       >
                         <IoTrashOutline className="w-4 h-4 text-red-500" />
                       </Button>
@@ -368,20 +410,23 @@ const PackageForm = ({
                 <div className="space-y-2">
                   {formData.healthSafetyMeasures.map((measure, index) => (
                     <div key={index} className="flex items-center space-x-2">
-                      <Input
-                        value={measure}
-                        onChange={(e) => {
-                          const newMeasures = [
-                            ...formData.healthSafetyMeasures,
-                          ];
-                          newMeasures[index] = e.target.value;
-                          handleInputChange(
-                            "healthSafetyMeasures",
-                            newMeasures
-                          );
-                        }}
-                        placeholder="Add health precaution"
-                      />
+                      <div className="flex-1">
+                        <Input
+                          value={measure}
+                          onChange={(e) => {
+                            const newMeasures = [
+                              ...formData.healthSafetyMeasures,
+                            ];
+                            newMeasures[index] = e.target.value;
+                            handleInputChange(
+                              "healthSafetyMeasures",
+                              newMeasures
+                            );
+                          }}
+                          placeholder="Add health precaution"
+                          className="border-orange-200 focus:border-orange-400 focus:ring-orange-400"
+                        />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -396,6 +441,7 @@ const PackageForm = ({
                             newMeasures
                           );
                         }}
+                        className="hover:bg-red-100"
                       >
                         <IoTrashOutline className="w-4 h-4 text-red-500" />
                       </Button>
@@ -411,6 +457,7 @@ const PackageForm = ({
                         "",
                       ])
                     }
+                    className="w-full border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300"
                   >
                     <IoAddOutline className="w-4 h-4 mr-2" />
                     Add Health Precaution
@@ -428,34 +475,200 @@ const PackageForm = ({
                   "All areas that customers touch are frequently cleaned",
                   "You must keep social distance while in vehicles",
                   "The number of visitors is limited to reduce crowds",
-                ].map((measure, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex-1">
-                      <div className="text-sm">{measure}</div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (!formData.healthSafetyMeasures.includes(measure)) {
-                          handleInputChange("healthSafetyMeasures", [
-                            ...formData.healthSafetyMeasures,
-                            measure,
-                          ]);
-                        }
-                      }}
-                      disabled={formData.healthSafetyMeasures.includes(measure)}
+                ].map((measure, index) => {
+                  const isSelected =
+                    formData.healthSafetyMeasures.includes(measure);
+                  const safetyIcons = ["🛡️", "🧽", "📏", "👥"];
+                  return (
+                    <div
+                      key={index}
+                      className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
+                        isSelected
+                          ? "bg-green-50 border border-green-200 opacity-60"
+                          : "bg-orange-50 hover:bg-orange-100 cursor-pointer border border-orange-100"
+                      }`}
+                      onClick={() =>
+                        !isSelected &&
+                        handleInputChange("healthSafetyMeasures", [
+                          ...formData.healthSafetyMeasures,
+                          measure,
+                        ])
+                      }
                     >
-                      {formData.healthSafetyMeasures.includes(measure)
-                        ? "Added"
-                        : "Add"}
-                    </Button>
-                  </div>
-                ))}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{safetyIcons[index]}</span>
+                          <div
+                            className={`text-sm ${
+                              isSelected ? "text-green-700" : "text-orange-800"
+                            }`}
+                          >
+                            {measure}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isSelected && (
+                          <span className="text-xs text-green-600 font-medium">
+                            Added
+                          </span>
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isSelected) {
+                              handleInputChange("healthSafetyMeasures", [
+                                ...formData.healthSafetyMeasures,
+                                measure,
+                              ]);
+                            }
+                          }}
+                          disabled={isSelected}
+                          className={
+                            isSelected ? "opacity-50" : "hover:bg-orange-200"
+                          }
+                        >
+                          {isSelected ? "✓" : "Add"}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Activities Section */}
+          <Card className="border-none shadow-none">
+            <CardHeader>
+              <CardTitle>Package Activities</CardTitle>
+              <CardDescription>
+                Define the activities included in your package
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">
+                  Activities
+                </h4>
+                <div className="space-y-2">
+                  {formData.activities.map((activity, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <div className="flex-1">
+                        <Input
+                          value={activity.name || activity || ""}
+                          onChange={(e) => {
+                            const newActivities = [...formData.activities];
+                            newActivities[index] = e.target.value;
+                            handleInputChange("activities", newActivities);
+                          }}
+                          placeholder="Add activity"
+                          className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const newActivities = formData.activities.filter(
+                            (_, i) => i !== index
+                          );
+                          handleInputChange("activities", newActivities);
+                        }}
+                        className="hover:bg-red-100"
+                      >
+                        <IoTrashOutline className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      handleInputChange("activities", [
+                        ...formData.activities,
+                        "",
+                      ])
+                    }
+                    className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                  >
+                    <IoAddOutline className="w-4 h-4 mr-2" />
+                    Add Activity
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick Add Common Activities */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-700">
+                  Quick Add Common Activities:
+                </h4>
+                {[
+                  "Guided tour of main attractions",
+                  "Local cultural experience",
+                  "Traditional meal at local restaurant",
+                ].map((activity, index) => {
+                  const isSelected = formData.activities.includes(activity);
+                  return (
+                    <div
+                      key={index}
+                      className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
+                        isSelected
+                          ? "bg-green-50 border border-green-200 opacity-60"
+                          : "bg-blue-50 hover:bg-blue-100 cursor-pointer border border-blue-100"
+                      }`}
+                      onClick={() =>
+                        !isSelected &&
+                        handleInputChange("activities", [
+                          ...formData.activities,
+                          activity,
+                        ])
+                      }
+                    >
+                      <div className="flex-1">
+                        <div
+                          className={`text-sm ${
+                            isSelected ? "text-green-700" : "text-blue-800"
+                          }`}
+                        >
+                          {activity}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isSelected && (
+                          <span className="text-xs text-green-600 font-medium">
+                            Added
+                          </span>
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isSelected) {
+                              handleInputChange("activities", [
+                                ...formData.activities,
+                                activity,
+                              ]);
+                            }
+                          }}
+                          disabled={isSelected}
+                          className={
+                            isSelected ? "opacity-50" : "hover:bg-blue-200"
+                          }
+                        >
+                          {isSelected ? "✓" : "Add"}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -471,20 +684,31 @@ const PackageForm = ({
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Includes
+                  <span className="flex items-center gap-2">
+                    <span className="text-green-600">✅</span>
+                    Includes
+                  </span>
                 </label>
                 <div className="space-y-2">
                   {formData.price.priceIncludes.map((item, index) => (
                     <div key={index} className="flex items-center space-x-2">
-                      <Input
-                        value={item}
-                        onChange={(e) => {
-                          const newIncludes = [...formData.price.priceIncludes];
-                          newIncludes[index] = e.target.value;
-                          handleInputChange("price.priceIncludes", newIncludes);
-                        }}
-                        placeholder="Add bullet point"
-                      />
+                      <div className="flex-1">
+                        <Input
+                          value={item}
+                          onChange={(e) => {
+                            const newIncludes = [
+                              ...formData.price.priceIncludes,
+                            ];
+                            newIncludes[index] = e.target.value;
+                            handleInputChange(
+                              "price.priceIncludes",
+                              newIncludes
+                            );
+                          }}
+                          placeholder="Add bullet point"
+                          className="border-green-200 focus:border-green-400 focus:ring-green-400"
+                        />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -496,6 +720,7 @@ const PackageForm = ({
                             );
                           handleInputChange("price.priceIncludes", newIncludes);
                         }}
+                        className="hover:bg-red-100"
                       >
                         <IoTrashOutline className="w-4 h-4 text-red-500" />
                       </Button>
@@ -511,6 +736,7 @@ const PackageForm = ({
                         "",
                       ])
                     }
+                    className="w-full border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300"
                   >
                     <IoAddOutline className="w-4 h-4 mr-2" />
                     Add Include
@@ -520,20 +746,31 @@ const PackageForm = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Excludes
+                  <span className="flex items-center gap-2">
+                    <span className="text-red-600">❌</span>
+                    Excludes
+                  </span>
                 </label>
                 <div className="space-y-2">
                   {formData.price.priceExcludes.map((item, index) => (
                     <div key={index} className="flex items-center space-x-2">
-                      <Input
-                        value={item}
-                        onChange={(e) => {
-                          const newExcludes = [...formData.price.priceExcludes];
-                          newExcludes[index] = e.target.value;
-                          handleInputChange("price.priceExcludes", newExcludes);
-                        }}
-                        placeholder="Add bullet point"
-                      />
+                      <div className="flex-1">
+                        <Input
+                          value={item}
+                          onChange={(e) => {
+                            const newExcludes = [
+                              ...formData.price.priceExcludes,
+                            ];
+                            newExcludes[index] = e.target.value;
+                            handleInputChange(
+                              "price.priceExcludes",
+                              newExcludes
+                            );
+                          }}
+                          placeholder="Add bullet point"
+                          className="border-red-200 focus:border-red-400 focus:ring-red-400"
+                        />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -545,6 +782,7 @@ const PackageForm = ({
                             );
                           handleInputChange("price.priceExcludes", newExcludes);
                         }}
+                        className="hover:bg-red-100"
                       >
                         <IoTrashOutline className="w-4 h-4 text-red-500" />
                       </Button>
@@ -560,6 +798,7 @@ const PackageForm = ({
                         "",
                       ])
                     }
+                    className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                   >
                     <IoAddOutline className="w-4 h-4 mr-2" />
                     Add Exclude
@@ -572,6 +811,144 @@ const PackageForm = ({
 
         {/* Right Column */}
         <div className="space-y-6">
+          {/* What's Inside the Package Section */}
+          <Card className="border-none shadow-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className="text-lg">📦</span>
+                What's Inside the Package
+              </CardTitle>
+              <CardDescription>
+                List the key attractions, experiences, and highlights included
+                in your package
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">
+                  Package Contents
+                </h4>
+                <div className="space-y-2">
+                  {formData.whatsInside.map((item, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <div className="flex-1">
+                        <Input
+                          value={item || ""}
+                          onChange={(e) => {
+                            const newItems = [...formData.whatsInside];
+                            newItems[index] = e.target.value;
+                            handleInputChange("whatsInside", newItems);
+                          }}
+                          placeholder="Add package content"
+                          className="border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const newItems = formData.whatsInside.filter(
+                            (_, i) => i !== index
+                          );
+                          handleInputChange("whatsInside", newItems);
+                        }}
+                        className="hover:bg-red-100"
+                      >
+                        <IoTrashOutline className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      handleInputChange("whatsInside", [
+                        ...formData.whatsInside,
+                        "",
+                      ])
+                    }
+                    className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300"
+                  >
+                    <IoAddOutline className="w-4 h-4 mr-2" />
+                    Add Package Content
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick Add Common Package Contents */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-700">
+                  Quick Add Common Contents
+                </h4>
+                {[
+                  "Guided tour of main attractions",
+                  "Professional photography session",
+                  "Local transportation included",
+                  "Traditional meal experience",
+                  "Cultural performance show",
+                  "Souvenir shopping time",
+                ].map((item, index) => {
+                  const isSelected = formData.whatsInside.includes(item);
+                  return (
+                    <div
+                      key={index}
+                      className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
+                        isSelected
+                          ? "bg-green-50 border border-green-200 opacity-60"
+                          : "bg-purple-50 hover:bg-purple-100 cursor-pointer border border-purple-100"
+                      }`}
+                      onClick={() =>
+                        !isSelected &&
+                        handleInputChange("whatsInside", [
+                          ...formData.whatsInside,
+                          item,
+                        ])
+                      }
+                    >
+                      <div className="flex-1">
+                        <div
+                          className={`text-sm ${
+                            isSelected ? "text-green-700" : "text-purple-800"
+                          }`}
+                        >
+                          {item}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isSelected && (
+                          <span className="text-xs text-green-600 font-medium">
+                            Added
+                          </span>
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isSelected) {
+                              handleInputChange("whatsInside", [
+                                ...formData.whatsInside,
+                                item,
+                              ]);
+                            }
+                          }}
+                          disabled={isSelected}
+                          className={
+                            isSelected ? "opacity-50" : "hover:bg-purple-200"
+                          }
+                        >
+                          {isSelected ? "✓" : "Add"}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
           {/* Location Details Section */}
           <Card className="border-none">
             <CardHeader>
@@ -659,6 +1036,8 @@ const PackageForm = ({
                 multiple
                 maxFiles={6}
                 onFilesChange={handleFileUpload}
+                onFileRemove={handleFileRemove}
+                existingFiles={formData.images}
                 label="Package Photos"
                 required
               />
@@ -876,7 +1255,13 @@ const PackageForm = ({
           Cancel
         </Button>
         <Button type="submit" loading={loading} disabled={loading}>
-          {loading ? "Creating Package..." : "Create Package"}
+          {loading
+            ? isEditMode
+              ? "Updating Package..."
+              : "Creating Package..."
+            : isEditMode
+            ? "Update Package"
+            : "Create Package"}
         </Button>
       </div>
     </form>

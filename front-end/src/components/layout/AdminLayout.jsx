@@ -1,7 +1,10 @@
+"use client";
+
 import Sidebar from "@/app/(admin)/components/Sidebar";
 import React from "react";
 import { Public_Sans } from "next/font/google";
 import Header from "@/app/(admin)/components/shared/Header";
+import { useAuth } from "@/contexts/AuthContext";
 
 const publicSans = Public_Sans({
   subsets: ["latin"],

@@ -1,126 +1,113 @@
-import React, { useState } from "react";
+import React from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 import PackageCard from "./PackageCard";
-import package1 from "../assets/dummy/package/package1.jpg";
-import package2 from "../assets/dummy/package/package2.jpg";
-import package3 from "../assets/dummy/package/package3.jpg";
-import package4 from "../assets/dummy/package/package4.jpg";
-import package5 from "../assets/dummy/package/package5.jpg";
-import package6 from "../assets/dummy/package/package3.jpg";
+import {
+  usePackages,
+  useDeletePackage,
+  useToggleFeaturedPackage,
+} from "../hooks/usePackages";
 
-// Sample package data
-const packages = [
-  {
-    id: 1,
-    title: "Westminster to Greenwich River Thames",
-    location: "AUS",
-    duration: "4 days Stay",
-    transport: "Transport Facility",
-    plan: "Family Plan",
-    rating: 4,
-    reviews: 584,
-    price: "349.00",
-    image: package1, // You can replace with actual images
-    active: true,
-  },
-  {
-    id: 2,
-    title: "Sydney Harbour Bridge Climb",
-    location: "AUS",
-    duration: "2 days Stay",
-    transport: "Transport Included",
-    plan: "Adventure Plan",
-    rating: 5,
-    reviews: 324,
-    price: "299.00",
-    image: package2,
-    active: true,
-  },
-  {
-    id: 3,
-    title: "Great Barrier Reef Diving",
-    location: "AUS",
-    duration: "3 days Stay",
-    transport: "Boat Transfer",
-    plan: "Diving Plan",
-    rating: 4,
-    reviews: 456,
-    price: "499.00",
-    image: package3,
-    active: false,
-  },
-  {
-    id: 4,
-    title: "Melbourne City Tour",
-    location: "AUS",
-    duration: "1 day Stay",
-    transport: "City Transport",
-    plan: "City Explorer",
-    rating: 3,
-    reviews: 189,
-    price: "149.00",
-    image: package4,
-    active: true,
-  },
-  {
-    id: 5,
-    title: "Uluru Sunset Experience",
-    location: "AUS",
-    duration: "5 days Stay",
-    transport: "4WD Vehicle",
-    plan: "Desert Adventure",
-    rating: 5,
-    reviews: 267,
-    price: "799.00",
-    image: package5,
-    active: true,
-  },
-  {
-    id: 6,
-    title: "Kangaroo Island Wildlife",
-    location: "AUS",
-    duration: "2 days Stay",
-    transport: "Ferry & Bus",
-    plan: "Wildlife Plan",
-    rating: 4,
-    reviews: 198,
-    price: "399.00",
-    image: package3,
-    active: false,
-  },
-];
+const PackageList = ({ filters }) => {
+  const router = useRouter();
+  const deletePackage = useDeletePackage();
+  const toggleFeatured = useToggleFeaturedPackage();
 
-const PackageList = () => {
-  const [packageList, setPackageList] = useState(packages);
+  // Fetch packages with filters
+  const {
+    data: packagesData,
+    isLoading,
+    error,
+  } = usePackages({
+    search: filters.searchTerm,
+    status: filters.statusFilter,
+    category: filters.categoryFilter,
+    featured:
+      filters.featuredFilter === "true"
+        ? true
+        : filters.featuredFilter === "false"
+        ? false
+        : undefined,
+    city: filters.cityFilter,
+    country: filters.countryFilter,
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+  });
 
   const handleEdit = (packageData) => {
-    console.log("Edit package:", packageData);
-    // Navigate to edit page or open edit modal
+    router.push(`/dashboard/destinations/packages/edit/${packageData._id}`);
   };
 
-  const handleDelete = (packageData) => {
-    console.log("Delete package:", packageData);
-    // Show confirmation dialog and delete package
-    setPackageList((prev) => prev.filter((pkg) => pkg.id !== packageData.id));
+  const handleDelete = async (packageData) => {
+    if (window.confirm("Are you sure you want to delete this package?")) {
+      try {
+        await deletePackage.mutateAsync(packageData._id);
+        toast.success("Package deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete package");
+      }
+    }
   };
 
-  const handleToggleStatus = (packageData) => {
-    console.log("Toggle status:", packageData);
-    setPackageList((prev) =>
-      prev.map((pkg) =>
-        pkg.id === packageData.id ? { ...pkg, active: !pkg.active } : pkg
-      )
+  const handleToggleFeatured = async (packageData) => {
+    try {
+      await toggleFeatured.mutateAsync(packageData._id);
+      toast.success(
+        `Package ${packageData.featured ? "removed from" : "added to"} featured`
+      );
+    } catch (error) {
+      toast.error("Failed to update featured status");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1D332C] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading packages...</p>
+        </div>
+      </div>
     );
-  };
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading packages</p>
+          <p className="text-gray-600">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const packages = packagesData?.data?.packages || [];
+
+  if (packages.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">No packages found</p>
+          <p className="text-sm text-gray-500">
+            Try adjusting your filters or create a new package
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 overflow-y-auto h-full lg:grid-cols-4 gap-3">
-      {packageList.map((packageData) => (
+      {packages.map((packageData) => (
         <PackageCard
-          key={packageData.id}
+          key={packageData._id}
           package={packageData}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          onToggleStatus={handleToggleStatus}
+          onToggleFeatured={handleToggleFeatured}
+          isDeleting={deletePackage.isPending}
+          isToggling={toggleFeatured.isPending}
         />
       ))}
     </div>
