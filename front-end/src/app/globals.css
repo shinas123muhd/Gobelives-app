@@ -1,15 +1,60 @@
 @import "tailwindcss";
 
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+
+/* SF Pro Display font faces (add actual files under public/fonts/SFPro) */
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SFPro/SF-Pro-Display-Regular.woff2') format('woff2'),
+       url('/fonts/SFPro/SF-Pro-Display-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SFPro/SF-Pro-Display-Medium.woff2') format('woff2'),
+       url('/fonts/SFPro/SF-Pro-Display-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SFPro/SF-Pro-Display-Semibold.woff2') format('woff2'),
+       url('/fonts/SFPro/SF-Pro-Display-Semibold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SFPro/SF-Pro-Display-Bold.woff2') format('woff2'),
+       url('/fonts/SFPro/SF-Pro-Display-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Expose SF Pro as a CSS variable for easy reuse */
+  --font-sfpro: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-source-sans-pro);
   --font-mono: var(--font-geist-mono);
+ 
+  --color-primary: #FFD700;
+  --color-auth-header: #2B4B40;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,7 +67,25 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-source-sans-pro), Arial, Helvetica, sans-serif;
+}
+
+/* Utility classes for switching fonts */
+.font-source-sans {
+  font-family: var(--font-source-sans-pro), Arial, Helvetica, sans-serif;
+}
+
+/* Utility to apply SF Pro Display wherever needed */
+.font-sfpro {
+  font-family: var(--font-sfpro);
+}
+
+.font-raleway {
+  font-family: var(--font-raleway), Arial, Helvetica, sans-serif;
+}
+
+.font-outfit {
+  font-family: var(--font-outfit), Arial, Helvetica, sans-serif;
 }
 
 /* Custom Scrollbar for Sidebar */
@@ -53,3 +116,10 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:active {
   background: rgba(255, 255, 255, 0.7);
 }
+
+
+.text-glow-white {
+  text-shadow: 0 4px 5px rgba(255, 255, 255, 0.4),
+               0 6px 10px rgba(255, 255, 255, 0.2);
+}
+
