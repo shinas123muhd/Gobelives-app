@@ -77,10 +77,8 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Serve static files (only in development)
-if (process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
-  app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-}
+// Serve static files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Swagger Documentation
 app.use(
@@ -137,33 +135,28 @@ const connectDB = async () => {
   }
 };
 
-// Start server (only if not in Vercel environment)
-if (process.env.VERCEL !== "1") {
-  const startServer = async () => {
-    try {
-      await connectDB();
-      app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-        console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-      });
-    } catch (error) {
-      console.error("Failed to start server:", error);
-      process.exit(1);
-    }
-  };
+// Start server
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
 
-  // Handle graceful shutdown
-  process.on("SIGINT", async () => {
-    console.log("Shutting down server gracefully");
-    await mongoose.connection.close();
-    process.exit(0);
-  });
+// Handle graceful shutdown
+process.on("SIGINT", async () => {
+  console.log("Shutting down server gracefully");
+  await mongoose.connection.close();
+  process.exit(0);
+});
 
-  // Start the application
-  startServer();
-} else {
-  // For Vercel, just connect to database
-  connectDB().catch(console.error);
-}
+// Start the application
+startServer();
 
 export default app;
