@@ -1,7 +1,7 @@
 // # Environment variables and configuration
 // # Config setup (DB connection, Cloudinary, etc.)
 
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -52,4 +52,4 @@ const config = {
   },
 };
 
-module.exports = config;
+export default config;

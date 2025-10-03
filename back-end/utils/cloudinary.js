@@ -9,21 +9,39 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadOnCloudinary = async (localFilePath, folder = "") => {
+const uploadOnCloudinary = async (file, folder = "") => {
   try {
-    if (!localFilePath) return null;
+    if (!file) return null;
 
-    // Upload the file on Cloudinary
-    const response = await cloudinary.uploader.upload(localFilePath, {
+    // Handle both file path (legacy) and buffer (new)
+    let uploadOptions = {
       resource_type: "auto",
       folder: folder,
-    });
+    };
 
-    // File has been uploaded successfully
-    fs.unlinkSync(localFilePath); // Remove locally saved temporary file
+    let response;
+    if (typeof file === "string") {
+      // Legacy: file path
+      response = await cloudinary.uploader.upload(file, uploadOptions);
+      // Remove locally saved temporary file
+      fs.unlinkSync(file);
+    } else {
+      // New: buffer from multer memory storage
+      response = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          uploadOptions,
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        uploadStream.end(file.buffer);
+      });
+    }
+
     return response;
   } catch (error) {
-    fs.unlinkSync(localFilePath); // Remove locally saved temporary file
+    console.error("Cloudinary upload error:", error);
     return null;
   }
 };

@@ -1,5 +1,4 @@
 @import "tailwindcss";
-
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
 
@@ -52,7 +51,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-source-sans-pro);
   --font-mono: var(--font-geist-mono);
- 
+  --font-raleway: "Raleway", sans-serif;
   --color-primary: #FFD700;
   --color-auth-header: #2B4B40;
 }
@@ -117,9 +116,7 @@ body {
   background: rgba(255, 255, 255, 0.7);
 }
 
-
 .text-glow-white {
   text-shadow: 0 4px 5px rgba(255, 255, 255, 0.4),
                0 6px 10px rgba(255, 255, 255, 0.2);
 }
-
