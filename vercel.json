@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "back-end/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "back-end/server.js"
+    },
+    {
+      "src": "/api-docs",
+      "dest": "back-end/server.js"
+    },
+    {
+      "src": "/health",
+      "dest": "back-end/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "back-end/server.js": {
+      "maxDuration": 30
+    }
+  },
+  "regions": ["iad1"]
+}
