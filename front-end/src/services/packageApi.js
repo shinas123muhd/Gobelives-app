@@ -51,6 +51,7 @@ export const packageApi = {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      timeout: 60000, // 60 seconds timeout for file uploads
     });
     return response.data;
   },
@@ -61,6 +62,7 @@ export const packageApi = {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      timeout: 60000, // 60 seconds timeout for file uploads
     });
     return response.data;
   },

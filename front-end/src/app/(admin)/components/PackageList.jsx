@@ -2,6 +2,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import PackageCard from "./PackageCard";
+import PackageListShimmer from "./PackageListShimmer";
 import {
   usePackages,
   useDeletePackage,
@@ -61,22 +62,15 @@ const PackageList = ({ filters }) => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1D332C] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading packages...</p>
-        </div>
-      </div>
-    );
+    return <PackageListShimmer count={8} />;
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error loading packages</p>
-          <p className="text-gray-600">{error.message}</p>
+          <p className="text-gray-600">{error?.message}</p>
         </div>
       </div>
     );
@@ -86,7 +80,7 @@ const PackageList = ({ filters }) => {
 
   if (packages.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <p className="text-gray-600 mb-4">No packages found</p>
           <p className="text-sm text-gray-500">

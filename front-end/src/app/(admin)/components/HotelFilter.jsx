@@ -1,33 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "@/components/ui/Select";
-import CreateHotelDrawer from "./CreateHotelDrawer";
 import { IoSearchOutline, IoAddCircleOutline } from "react-icons/io5";
 
-const HotelFilter = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+const HotelFilter = ({ filters, onFilterChange, onCreateHotel }) => {
+  const [searchQuery, setSearchQuery] = useState(filters.search || "");
+  const [statusFilter, setStatusFilter] = useState(filters.status || "");
   const [dateFilter, setDateFilter] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const statusOptions = [
-    { value: "all", label: "Status: All" },
+    { value: "", label: "Status: All" },
     { value: "active", label: "Active" },
     { value: "inactive", label: "Inactive" },
     { value: "pending", label: "Pending" },
+    { value: "suspended", label: "Suspended" },
   ];
 
   const dateOptions = [
-    { value: "all", label: "Filter by date range" },
+    { value: "", label: "Filter by date range" },
     { value: "7days", label: "Last 7 days" },
     { value: "30days", label: "Last 30 days" },
     { value: "3months", label: "Last 3 months" },
   ];
 
+  // Handle search with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      onFilterChange({ search: searchQuery });
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, onFilterChange]);
+
+  // Handle status filter change
+  const handleStatusChange = (value) => {
+    setStatusFilter(value);
+    onFilterChange({ status: value });
+  };
+
+  // Handle date filter change
+  const handleDateChange = (value) => {
+    setDateFilter(value);
+
+    let dateFrom = "";
+    let dateTo = "";
+
+    if (value === "7days") {
+      dateFrom = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    } else if (value === "30days") {
+      dateFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    } else if (value === "3months") {
+      dateFrom = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+    }
+
+    onFilterChange({ dateFrom, dateTo });
+  };
+
   return (
     <div className="flex items-center justify-between mt-6 mb-3">
       <div className="flex items-center gap-4">
         {/* Search Bar */}
-        <div className="relative bg-white rounded-lg overflow-hidden">
+        <div className="relative bg-white rounded-lg ">
           <IoSearchOutline className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#8B909A] text-lg" />
           <input
             type="text"
@@ -43,7 +76,7 @@ const HotelFilter = () => {
         <Select
           options={statusOptions}
           value={statusFilter}
-          onChange={setStatusFilter}
+          onChange={handleStatusChange}
           placeholder="Status: All"
           className="w-40"
         />
@@ -52,8 +85,8 @@ const HotelFilter = () => {
       <div className="flex items-center gap-4">
         {/* Add Hotel Button */}
         <button
-          onClick={() => setIsDrawerOpen(true)}
-          className="flex items-center gap-2 bg-white group cursor-pointer
+          onClick={onCreateHotel}
+          className="flex items-center gap-2 whitespace-nowrap bg-white group cursor-pointer
           text-sm text-[#1D332C] px-4 py-2 rounded-lg hover:bg-[#1D332C] hover:text-white transition-colors"
         >
           <IoAddCircleOutline className="text-lg text-[#1D332C] group-hover:text-white" />
@@ -64,17 +97,11 @@ const HotelFilter = () => {
         <Select
           options={dateOptions}
           value={dateFilter}
-          onChange={setDateFilter}
+          onChange={handleDateChange}
           placeholder="Filter by date range"
           className="w-48"
         />
       </div>
-
-      {/* Create Hotel Drawer */}
-      <CreateHotelDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-      />
     </div>
   );
 };

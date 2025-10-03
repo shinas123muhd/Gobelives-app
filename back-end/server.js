@@ -24,6 +24,8 @@ import "./models/Category.model.js";
 import "./models/Package.model.js";
 import "./models/Review.model.js";
 import "./models/Booking.model.js";
+import "./models/Coupon.model.js";
+import "./models/Hotel.model.js";
 
 // Import routes
 import propertyRoutes from "./routes/property.routes.js";
@@ -31,6 +33,8 @@ import categoryRoutes from "./routes/category.routes.js";
 import categoryPublicRoutes from "./routes/categoryPublic.routes.js";
 import packageRoutes from "./routes/package.routes.js";
 import packagePublicRoutes from "./routes/packagePublic.routes.js";
+import couponRoutes from "./routes/coupon.routes.js";
+import hotelRoutes from "./routes/hotel.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 // import userRoutes from "./routes/user.routes.js";
 // import adminRoutes from "./routes/admin.routes.js";
@@ -39,6 +43,9 @@ import authRoutes from "./routes/auth.routes.js";
 
 // Import middleware
 import { errorHandler } from "./middleware/error.middleware.js";
+
+// Import Swagger
+import { specs, swaggerUi } from "./config/swagger.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -73,6 +80,17 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Swagger Documentation
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    explorer: true,
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "GoBelives API Documentation",
+  })
+);
+
 // Health check route
 app.get("/api/health", (req, res) => {
   res.status(200).json({
@@ -89,6 +107,8 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/categories", categoryPublicRoutes);
 app.use("/api/packages", packageRoutes);
 app.use("/api/packages", packagePublicRoutes);
+app.use("/api/coupons", couponRoutes);
+app.use("/api/hotels", hotelRoutes);
 // app.use("/api/admin", adminRoutes);
 // app.use("/api/bookings", bookingRoutes);
 // app.use("/api/reviews", reviewRoutes);

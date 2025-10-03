@@ -51,9 +51,9 @@ const PackageFilter = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="flex items-center justify-between mt-6 mb-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         {/* Search Bar */}
-        <div className="relative bg-white rounded-lg overflow-hidden">
+        <div className="relative bg-white rounded-lg ">
           <IoSearchOutline className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#8B909A] text-lg" />
           <input
             type="text"
@@ -61,7 +61,7 @@ const PackageFilter = ({ filters, onFiltersChange }) => {
             value={filters.searchTerm}
             onChange={handleSearchChange}
             className="pr-10 pl-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 
-               placeholder:text-[#8B909A] w-64"
+               placeholder:text-[#8B909A]  min-w-64"
           />
         </div>
 

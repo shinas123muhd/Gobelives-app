@@ -16,6 +16,9 @@ const Input = forwardRef(
     },
     ref
   ) => {
+    // Ensure we always have a defined value to prevent controlled/uncontrolled issues
+    const inputValue = value !== undefined ? value : "";
+    const hasOnChange = onChange && typeof onChange === "function";
     return (
       <div className="w-full">
         {label && (
@@ -28,8 +31,9 @@ const Input = forwardRef(
           ref={ref}
           type={type}
           placeholder={placeholder}
-          value={value}
-          onChange={onChange}
+          {...(hasOnChange
+            ? { value: inputValue, onChange }
+            : { defaultValue: inputValue })}
           disabled={disabled}
           className={`
           w-full px-3 py-2 text-sm border rounded-lg

@@ -74,13 +74,52 @@ export const adminRoutes = [
 
 // Helper function to get route details by path
 export const getRouteByPath = (pathname) => {
-  return (
-    adminRoutes.find((route) => route.path === pathname) || {
+  // First try exact match
+  let route = adminRoutes.find((route) => route.path === pathname);
+
+  if (route) {
+    return route;
+  }
+
+  // Handle dynamic routes
+  if (pathname.includes("/hotels/edit/")) {
+    return {
       path: pathname,
-      title: "Admin",
-      description: "Administration panel",
-    }
-  );
+      title: "Edit Hotel",
+      description: "Edit hotel details",
+    };
+  }
+
+  if (pathname.includes("/packages/edit/")) {
+    return {
+      path: pathname,
+      title: "Edit Package",
+      description: "Edit package details",
+    };
+  }
+
+  if (pathname.includes("/hotels/create")) {
+    return {
+      path: pathname,
+      title: "Create Hotel",
+      description: "Add new hotel",
+    };
+  }
+
+  if (pathname.includes("/packages/create")) {
+    return {
+      path: pathname,
+      title: "Create Package",
+      description: "Add new package",
+    };
+  }
+
+  // Default fallback
+  return {
+    path: pathname,
+    title: "Admin",
+    description: "Administration panel",
+  };
 };
 
 // Helper function to get title by path

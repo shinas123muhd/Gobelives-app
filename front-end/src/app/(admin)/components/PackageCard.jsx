@@ -110,7 +110,8 @@ const PackageCard = ({
           {/* Price */}
           <div className="text-right">
             <p className="text-gray-800 text-xl font-bold">
-              ${packageData.price?.basePrice || 0}
+              {packageData.price?.currency}
+              {packageData.price?.basePrice || 0}
             </p>
             <p className="text-gray-600 text-xs">per person</p>
           </div>

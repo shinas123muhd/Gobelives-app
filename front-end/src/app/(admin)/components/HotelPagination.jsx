@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import Select from "@/components/ui/Select";
 
-const HotelPagination = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const totalItems = 50;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+const HotelPagination = ({
+  currentPage,
+  itemsPerPage,
+  totalItems,
+  totalPages,
+  onPageChange,
+  onItemsPerPageChange,
+}) => {
   const itemsPerPageOptions = [
     { value: 10, label: "10" },
     { value: 20, label: "20" },
@@ -17,13 +19,12 @@ const HotelPagination = () => {
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      onPageChange(page);
     }
   };
 
   const handleItemsPerPageChange = (value) => {
-    setItemsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing items per page
+    onItemsPerPageChange(parseInt(value));
   };
 
   const generatePageNumbers = () => {

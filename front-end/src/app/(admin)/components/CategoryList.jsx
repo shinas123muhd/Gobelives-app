@@ -8,6 +8,7 @@ import Image from "next/image";
 import { FiEdit } from "react-icons/fi";
 import { MdLockOpen, MdLock } from "react-icons/md";
 import EditCategoryDrawer from "./EditCategoryDrawer";
+import CategoryListShimmer from "./CategoryListShimmer";
 import {
   useCategories,
   useDeleteCategory,
@@ -73,12 +74,7 @@ const CategoryList = ({ filters = {} }) => {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2 text-gray-600">Loading categories...</span>
-      </div>
-    );
+    return <CategoryListShimmer count={6} />;
   }
 
   // Error state
