@@ -786,39 +786,182 @@ const EditPackage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1D332C] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading package...</p>
+      <section className="w-full h-full p-6 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="mb-8">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded-lg w-64 mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-48"></div>
+            </div>
+          </div>
+
+          {/* Form Skeleton */}
+          <div className="bg-white rounded-xl border border-gray-100 p-8">
+            <div className="animate-pulse space-y-8">
+              {/* Basic Information Section */}
+              <div className="space-y-6">
+                <div className="h-6 bg-gray-200 rounded w-40"></div>
+
+                {/* Title and Description */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                    <div className="h-12 bg-gray-200 rounded-lg"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                    <div className="h-12 bg-gray-200 rounded-lg"></div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  <div className="h-32 bg-gray-200 rounded-lg"></div>
+                </div>
+
+                {/* Location Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                    <div className="h-12 bg-gray-200 rounded-lg"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                    <div className="h-12 bg-gray-200 rounded-lg"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing Section */}
+              <div className="space-y-6 border-t border-gray-100 pt-8">
+                <div className="h-6 bg-gray-200 rounded w-32"></div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                    <div className="h-12 bg-gray-200 rounded-lg"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                    <div className="h-12 bg-gray-200 rounded-lg"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                    <div className="h-12 bg-gray-200 rounded-lg"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Features Section */}
+              <div className="space-y-6 border-t border-gray-100 pt-8">
+                <div className="h-6 bg-gray-200 rounded w-40"></div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                    <div className="h-20 bg-gray-200 rounded-lg"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-28"></div>
+                    <div className="h-20 bg-gray-200 rounded-lg"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
+                <div className="h-12 bg-gray-200 rounded-lg w-24"></div>
+                <div className="h-12 bg-gray-200 rounded-lg w-32"></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Error loading package</p>
-          <p className="text-gray-600">{error.message}</p>
+      <section className="w-full h-full p-6 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white rounded-xl border border-gray-100 p-8 text-center">
+            <div className="flex flex-col items-center justify-center h-64 space-y-4">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Error Loading Package
+                </h3>
+                <p className="text-gray-600 mb-6">{error.message}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (!packageData?.data) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Package not found</p>
-          <button
-            onClick={() => router.push("/dashboard/destinations/packages")}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            Back to packages
-          </button>
+      <section className="w-full h-full p-6 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white rounded-xl border border-gray-100 p-8 text-center">
+            <div className="flex flex-col items-center justify-center h-64 space-y-4">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.47-.881-6.08-2.33"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Package Not Found
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  The package you're looking for doesn't exist or has been
+                  removed.
+                </p>
+                <button
+                  onClick={() =>
+                    router.push("/dashboard/destinations/packages")
+                  }
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                >
+                  Back to Packages
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 

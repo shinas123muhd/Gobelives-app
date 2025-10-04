@@ -4,6 +4,7 @@ import React from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import DashboardLoading from "./ui/DashboardLoading";
 
 const ProtectedRoute = ({
   children,
@@ -41,12 +42,11 @@ const ProtectedRoute = ({
   // Show loading spinner while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F2F6F5]">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
+      <DashboardLoading
+        message="Authenticating..."
+        showSkeleton={true}
+        fullScreen={true}
+      />
     );
   }
 

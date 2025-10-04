@@ -38,9 +38,9 @@ const CategoryFilter = ({
 
   return (
     <div className="flex items-center justify-between mt-6 mb-6">
-      <div className="flex items-center gap-4">
+      <div className="flex  items-center gap-4">
         {/* Search Bar */}
-        <div className="relative bg-white rounded-lg overflow-hidden">
+        <div className="relative bg-white w-fit rounded-lg ">
           <IoSearchOutline className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#8B909A] text-lg" />
           <input
             type="text"

@@ -534,6 +534,171 @@ const logout = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, null, "Logged out successfully"));
 });
 
+// @desc    Google OAuth callback
+// @route   GET /api/auth/google/callback
+// @access  Public
+const googleCallback = asyncHandler(async (req, res) => {
+  // User is authenticated via Passport, available in req.user
+  if (!req.user) {
+    // Redirect to frontend with error
+    return res.redirect(
+      `${process.env.CLIENT_URL}/login?error=authentication_failed`
+    );
+  }
+
+  // Send token response
+  sendTokenResponse(req.user, 200, res);
+});
+
+// @desc    Facebook OAuth callback
+// @route   GET /api/auth/facebook/callback
+// @access  Public
+const facebookCallback = asyncHandler(async (req, res) => {
+  // User is authenticated via Passport, available in req.user
+  if (!req.user) {
+    // Redirect to frontend with error
+    return res.redirect(
+      `${process.env.CLIENT_URL}/login?error=authentication_failed`
+    );
+  }
+
+  // Send token response
+  sendTokenResponse(req.user, 200, res);
+});
+
+// @desc    Link OAuth account to existing user
+// @route   POST /api/auth/link-account
+// @access  Private
+const linkAccount = asyncHandler(async (req, res) => {
+  const { provider, providerId, email } = req.body;
+
+  if (!provider || !providerId) {
+    throw new ApiError(400, "Provider and provider ID are required");
+  }
+
+  // Validate provider
+  if (!["google", "facebook"].includes(provider)) {
+    throw new ApiError(400, "Invalid provider");
+  }
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Check if this provider account is already linked to another user
+  let existingUser;
+  if (provider === "google") {
+    existingUser = await User.findByGoogleId(providerId);
+    if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+      throw new ApiError(
+        400,
+        "This Google account is already linked to another user"
+      );
+    }
+  } else if (provider === "facebook") {
+    existingUser = await User.findByFacebookId(providerId);
+    if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+      throw new ApiError(
+        400,
+        "This Facebook account is already linked to another user"
+      );
+    }
+  }
+
+  // Link the account
+  await user.linkOAuthAccount(provider, providerId, email);
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, user, `${provider} account linked successfully`)
+    );
+});
+
+// @desc    Get connected OAuth accounts
+// @route   GET /api/auth/connected-accounts
+// @access  Private
+const getConnectedAccounts = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select(
+    "connectedAccounts googleId facebookId authProvider"
+  );
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const accounts = {
+    primary: user.authProvider,
+    google: {
+      connected: !!user.googleId,
+      id: user.googleId || null,
+    },
+    facebook: {
+      connected: !!user.facebookId,
+      id: user.facebookId || null,
+    },
+    history: user.connectedAccounts,
+  };
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        accounts,
+        "Connected accounts retrieved successfully"
+      )
+    );
+});
+
+// @desc    Unlink OAuth account
+// @route   DELETE /api/auth/unlink-account/:provider
+// @access  Private
+const unlinkAccount = asyncHandler(async (req, res) => {
+  const { provider } = req.params;
+
+  // Validate provider
+  if (!["google", "facebook"].includes(provider)) {
+    throw new ApiError(400, "Invalid provider");
+  }
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Check if this is the primary auth method
+  if (user.authProvider === provider && !user.password) {
+    throw new ApiError(
+      400,
+      "Cannot unlink primary authentication method. Please set a password first."
+    );
+  }
+
+  // Unlink the account
+  if (provider === "google") {
+    user.googleId = undefined;
+  } else if (provider === "facebook") {
+    user.facebookId = undefined;
+  }
+
+  // Remove from connected accounts
+  user.connectedAccounts = user.connectedAccounts.filter(
+    (acc) => acc.provider !== provider
+  );
+
+  await user.save();
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, user, `${provider} account unlinked successfully`)
+    );
+});
+
 export {
   register,
   login,
@@ -546,4 +711,9 @@ export {
   changePassword,
   refreshToken,
   logout,
+  googleCallback,
+  facebookCallback,
+  linkAccount,
+  getConnectedAccounts,
+  unlinkAccount,
 };

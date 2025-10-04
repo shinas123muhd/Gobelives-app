@@ -1,4 +1,5 @@
 import express from "express";
+import passport from "passport";
 import {
   register,
   login,
@@ -11,6 +12,11 @@ import {
   changePassword,
   refreshToken,
   logout,
+  googleCallback,
+  facebookCallback,
+  linkAccount,
+  getConnectedAccounts,
+  unlinkAccount,
 } from "../controllers/auth.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 
@@ -418,5 +424,183 @@ router.put("/change-password", authMiddleware, changePassword);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post("/logout", authMiddleware, logout);
+
+// ============================================
+// OAuth Authentication Routes
+// ============================================
+
+/**
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     summary: Initiate Google OAuth authentication
+ *     tags: [Authentication]
+ *     description: Redirects to Google OAuth consent screen
+ *     responses:
+ *       302:
+ *         description: Redirect to Google OAuth
+ */
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  })
+);
+
+/**
+ * @swagger
+ * /auth/google/callback:
+ *   get:
+ *     summary: Google OAuth callback
+ *     tags: [Authentication]
+ *     description: Handles the callback from Google OAuth
+ *     responses:
+ *       200:
+ *         description: Authentication successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       401:
+ *         description: Authentication failed
+ */
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.CLIENT_URL}/login?error=google_auth_failed`,
+    session: false,
+  }),
+  googleCallback
+);
+
+/**
+ * @swagger
+ * /auth/facebook:
+ *   get:
+ *     summary: Initiate Facebook OAuth authentication
+ *     tags: [Authentication]
+ *     description: Redirects to Facebook OAuth consent screen
+ *     responses:
+ *       302:
+ *         description: Redirect to Facebook OAuth
+ */
+router.get(
+  "/facebook",
+  passport.authenticate("facebook", {
+    scope: ["email"],
+    session: false,
+  })
+);
+
+/**
+ * @swagger
+ * /auth/facebook/callback:
+ *   get:
+ *     summary: Facebook OAuth callback
+ *     tags: [Authentication]
+ *     description: Handles the callback from Facebook OAuth
+ *     responses:
+ *       200:
+ *         description: Authentication successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       401:
+ *         description: Authentication failed
+ */
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", {
+    failureRedirect: `${process.env.CLIENT_URL}/login?error=facebook_auth_failed`,
+    session: false,
+  }),
+  facebookCallback
+);
+
+/**
+ * @swagger
+ * /auth/link-account:
+ *   post:
+ *     summary: Link OAuth account to existing user
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - provider
+ *               - providerId
+ *             properties:
+ *               provider:
+ *                 type: string
+ *                 enum: [google, facebook]
+ *                 example: "google"
+ *               providerId:
+ *                 type: string
+ *                 example: "1234567890"
+ *               email:
+ *                 type: string
+ *                 example: "user@example.com"
+ *     responses:
+ *       200:
+ *         description: Account linked successfully
+ *       400:
+ *         description: Invalid request or account already linked
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/link-account", authMiddleware, linkAccount);
+
+/**
+ * @swagger
+ * /auth/connected-accounts:
+ *   get:
+ *     summary: Get connected OAuth accounts
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Connected accounts retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/connected-accounts", authMiddleware, getConnectedAccounts);
+
+/**
+ * @swagger
+ * /auth/unlink-account/{provider}:
+ *   delete:
+ *     summary: Unlink OAuth account
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: provider
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [google, facebook]
+ *         description: OAuth provider to unlink
+ *     responses:
+ *       200:
+ *         description: Account unlinked successfully
+ *       400:
+ *         description: Cannot unlink primary authentication method
+ *       401:
+ *         description: Unauthorized
+ */
+router.delete("/unlink-account/:provider", authMiddleware, unlinkAccount);
 
 export default router;

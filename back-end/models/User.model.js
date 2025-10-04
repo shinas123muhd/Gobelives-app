@@ -28,9 +28,12 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
       minLength: [6, "Password must be at least 6 characters"],
       select: false,
+      required: function () {
+        // Password only required for local authentication
+        return this.authProvider === "local";
+      },
     },
     phone: {
       type: String,
@@ -40,6 +43,38 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
     },
+
+    // OAuth Authentication
+    authProvider: {
+      type: String,
+      enum: ["local", "google", "facebook"],
+      default: "local",
+    },
+    googleId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    facebookId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    connectedAccounts: [
+      {
+        provider: {
+          type: String,
+          enum: ["google", "facebook"],
+        },
+        providerId: String,
+        email: String,
+        connectedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
     role: {
       type: String,
       enum: ["user", "admin", "super_admin"],
@@ -262,10 +297,14 @@ userSchema.index({ role: 1 });
 userSchema.index({ "rewards.tier": 1 });
 userSchema.index({ referralCode: 1 });
 userSchema.index({ "rewards.points": -1 });
+userSchema.index({ googleId: 1 });
+userSchema.index({ facebookId: 1 });
+userSchema.index({ authProvider: 1 });
 
 // Hash password before saving
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  // Skip if password not modified or if using OAuth
+  if (!this.isModified("password") || !this.password) return next();
 
   try {
     const salt = await bcrypt.genSalt(12);
@@ -403,6 +442,42 @@ userSchema.statics.findByEmail = function (email) {
 // Static method to find user by referral code
 userSchema.statics.findByReferralCode = function (referralCode) {
   return this.findOne({ referralCode });
+};
+
+// Static method to find user by Google ID
+userSchema.statics.findByGoogleId = function (googleId) {
+  return this.findOne({ googleId });
+};
+
+// Static method to find user by Facebook ID
+userSchema.statics.findByFacebookId = function (facebookId) {
+  return this.findOne({ facebookId });
+};
+
+// Instance method to link OAuth account
+userSchema.methods.linkOAuthAccount = function (provider, providerId, email) {
+  // Check if this account is already linked
+  const alreadyLinked = this.connectedAccounts.find(
+    (acc) => acc.provider === provider && acc.providerId === providerId
+  );
+
+  if (!alreadyLinked) {
+    this.connectedAccounts.push({
+      provider,
+      providerId,
+      email,
+      connectedAt: new Date(),
+    });
+
+    // Update the provider ID field if not set
+    if (provider === "google" && !this.googleId) {
+      this.googleId = providerId;
+    } else if (provider === "facebook" && !this.facebookId) {
+      this.facebookId = providerId;
+    }
+  }
+
+  return this.save();
 };
 
 const User = mongoose.model("User", userSchema);

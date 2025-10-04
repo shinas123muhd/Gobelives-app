@@ -32,21 +32,45 @@ const Sidebar = () => {
   };
 
   const isActive = (path) => {
-    return pathname === path;
+    if (!path) return false;
+
+    // For exact matches
+    if (pathname === path) return true;
+
+    // For nested routes, only match if we're on a sub-route AND the path is not just "/dashboard"
+    // This prevents /dashboard from matching /dashboard/destinations/packages
+    if (pathname.startsWith(path + "/")) {
+      // Special case: don't match /dashboard for any sub-routes
+      if (path === "/dashboard") {
+        return false;
+      }
+      // For other paths, allow matching sub-routes
+      return true;
+    }
+
+    return false;
+  };
+
+  const isParentActive = (item) => {
+    if (!item.hasSubItems) return false;
+    return item.subItems.some((subItem) => isActive(subItem.path));
   };
 
   const renderMenuItem = (item) => {
     const Icon = item.icon;
     const isItemActive = isActive(item.path);
+    const isParentActiveItem = isParentActive(item);
     const isExpanded = expandedItems[item.id];
 
     return (
       <div key={item.id}>
         <div
-          className={`flex items-center rounded-lg justify-between px-4 py-3 cursor-pointer transition-colors duration-200 ${
+          className={`flex items-center rounded-lg justify-between px-4 py-3 cursor-pointer transition-all duration-200 ${
             isItemActive
-              ? "bg-white text-[#2B4B40]"
-              : "text-[#C4CDCA] hover:bg-white/10"
+              ? "bg-white text-[#2B4B40] shadow-sm border-l-4 border-yellow-400"
+              : isParentActiveItem
+              ? "bg-white/20 text-white border-l-4 border-white/30"
+              : "text-[#C4CDCA] hover:bg-white/10 hover:text-white"
           }`}
           onClick={() => {
             if (item.hasSubItems) {
@@ -57,11 +81,38 @@ const Sidebar = () => {
           }}
         >
           <div className="flex items-center space-x-3">
-            <Icon size={20} />
-            <span className="text-sm font-medium">{item.title}</span>
+            <Icon
+              size={20}
+              className={`transition-colors duration-200 ${
+                isItemActive
+                  ? "text-[#2B4B40]"
+                  : isParentActiveItem
+                  ? "text-white"
+                  : "text-[#C4CDCA]"
+              }`}
+            />
+            <span
+              className={`text-sm font-medium transition-colors duration-200 ${
+                isItemActive
+                  ? "text-[#2B4B40] font-semibold"
+                  : isParentActiveItem
+                  ? "text-white font-medium"
+                  : "text-[#C4CDCA]"
+              }`}
+            >
+              {item.title}
+            </span>
           </div>
           {item.hasSubItems && (
-            <div className="text-[#C4CDCA] text-lg">
+            <div
+              className={`text-lg transition-colors duration-200 ${
+                isItemActive
+                  ? "text-[#2B4B40]"
+                  : isParentActiveItem
+                  ? "text-white"
+                  : "text-[#C4CDCA]"
+              }`}
+            >
               {isExpanded ? (
                 <MdOutlineKeyboardArrowDown />
               ) : (
@@ -72,22 +123,33 @@ const Sidebar = () => {
         </div>
 
         {item.hasSubItems && isExpanded && (
-          <div className="ml-4  ">
-            {item.subItems.map((subItem) => (
-              <div
-                key={subItem.id}
-                className={`px-4 py-2 cursor-pointer rounded-lg transition-colors duration-200 ${
-                  isActive(subItem.path)
-                    ? "bg-white text-[#003F38]"
-                    : "text-white/80 hover:bg-white/10"
-                } ${subItem.isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() =>
-                  !subItem.isDisabled && handleNavigation(subItem.path)
-                }
-              >
-                <span className="text-sm">{subItem.title}</span>
-              </div>
-            ))}
+          <div className="ml-4 mt-1">
+            {item.subItems.map((subItem) => {
+              const isSubItemActive = isActive(subItem.path);
+              return (
+                <div
+                  key={subItem.id}
+                  className={`px-4 py-2.5 cursor-pointer rounded-lg transition-all duration-200 ${
+                    isSubItemActive
+                      ? "bg-white text-[#003F38] shadow-sm border-l-4 border-yellow-400 font-medium"
+                      : "text-white/80 hover:bg-white/10 hover:text-white"
+                  } ${
+                    subItem.isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  onClick={() =>
+                    !subItem.isDisabled && handleNavigation(subItem.path)
+                  }
+                >
+                  <span
+                    className={`text-sm transition-all duration-200 ${
+                      isSubItemActive ? "font-medium" : "font-normal"
+                    }`}
+                  >
+                    {subItem.title}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

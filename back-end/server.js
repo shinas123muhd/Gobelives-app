@@ -9,6 +9,7 @@ import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
 import config from "./config/index.js";
+import passport from "./config/passport.js";
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +27,8 @@ import "./models/Review.model.js";
 import "./models/Booking.model.js";
 import "./models/Coupon.model.js";
 import "./models/Hotel.model.js";
+import "./models/Blogs.model.js";
+import "./models/Gallery.model.js";
 
 // Import routes
 import propertyRoutes from "./routes/property.routes.js";
@@ -36,9 +39,11 @@ import packagePublicRoutes from "./routes/packagePublic.routes.js";
 import couponRoutes from "./routes/coupon.routes.js";
 import hotelRoutes from "./routes/hotel.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import blogRoutes from "./routes/blogs.routes.js";
+import galleryRoutes from "./routes/gallery.routes.js";
+import bookingRoutes from "./routes/booking.routes.js";
 // import userRoutes from "./routes/user.routes.js";
 // import adminRoutes from "./routes/admin.routes.js";
-// import bookingRoutes from "./routes/booking.routes.js";
 // import reviewRoutes from "./routes/review.routes.js";
 
 // Import middleware
@@ -77,6 +82,9 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// Initialize Passport
+app.use(passport.initialize());
+
 // Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -109,8 +117,10 @@ app.use("/api/packages", packageRoutes);
 app.use("/api/packages", packagePublicRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/hotels", hotelRoutes);
+app.use("/api/blogs", blogRoutes);
+app.use("/api/gallery", galleryRoutes);
+app.use("/api/bookings", bookingRoutes);
 // app.use("/api/admin", adminRoutes);
-// app.use("/api/bookings", bookingRoutes);
 // app.use("/api/reviews", reviewRoutes);
 
 // Error handling middleware (should be last)

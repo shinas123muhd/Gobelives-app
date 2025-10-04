@@ -19,6 +19,7 @@ import {
   MdReceipt,
   MdOutlineLocationOn,
   MdOutlinePayment,
+  MdOutlinePhotoLibrary,
 } from "react-icons/md";
 import { GrHomeOption } from "react-icons/gr";
 import { TbCalendarPlus, TbStars } from "react-icons/tb";
@@ -111,21 +112,9 @@ export const SIDEBAR_ITEMS = [
     isExpanded: false,
     subItems: [
       {
-        id: "seo-analytics",
-        title: "SEO Analytics",
-        path: "/dashboard/seo/analytics",
-        isDisabled: false,
-      },
-      {
-        id: "seo-optimization",
-        title: "SEO Optimization",
-        path: "/dashboard/seo/optimization",
-        isDisabled: false,
-      },
-      {
         id: "seo-reports",
-        title: "SEO Reports",
-        path: "/dashboard/seo/reports",
+        title: "Blogs",
+        path: "/dashboard/seo/blogs",
         isDisabled: false,
       },
     ],
@@ -142,6 +131,13 @@ export const SIDEBAR_ITEMS = [
     title: "Ratings & Reviews",
     icon: TbStars,
     path: "/dashboard/reviews",
+    hasSubItems: false,
+  },
+  {
+    id: "gallery",
+    title: "Gallery",
+    icon: MdOutlinePhotoLibrary,
+    path: "/dashboard/gallery",
     hasSubItems: false,
   },
 ];
