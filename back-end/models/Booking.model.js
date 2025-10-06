@@ -302,6 +302,12 @@ const bookingSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Event Link (for calendar view)
+    linkedEvent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Event",
+    },
+
     // Additional Information
     notes: String,
     internalNotes: String, // For admin use only

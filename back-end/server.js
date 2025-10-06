@@ -29,6 +29,7 @@ import "./models/Coupon.model.js";
 import "./models/Hotel.model.js";
 import "./models/Blogs.model.js";
 import "./models/Gallery.model.js";
+import "./models/Event.model.js";
 
 // Import routes
 import propertyRoutes from "./routes/property.routes.js";
@@ -42,9 +43,10 @@ import authRoutes from "./routes/auth.routes.js";
 import blogRoutes from "./routes/blogs.routes.js";
 import galleryRoutes from "./routes/gallery.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
-// import userRoutes from "./routes/user.routes.js";
+import eventRoutes from "./routes/event.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import reviewRoutes from "./routes/review.routes.js";
 // import adminRoutes from "./routes/admin.routes.js";
-// import reviewRoutes from "./routes/review.routes.js";
 
 // Import middleware
 import { errorHandler } from "./middleware/error.middleware.js";
@@ -109,7 +111,7 @@ app.get("/api/health", (req, res) => {
 
 // API Routes
 app.use("/api/auth", authRoutes);
-// app.use("/api/users", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/categories", categoryPublicRoutes);
@@ -120,8 +122,9 @@ app.use("/api/hotels", hotelRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/events", eventRoutes);
+app.use("/api/reviews", reviewRoutes);
 // app.use("/api/admin", adminRoutes);
-// app.use("/api/reviews", reviewRoutes);
 
 // Error handling middleware (should be last)
 app.use(errorHandler);

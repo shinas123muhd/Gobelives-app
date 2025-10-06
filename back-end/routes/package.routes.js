@@ -13,6 +13,8 @@ import {
   getPackageStats,
   getPackagesByLocation,
   deletePackageImage,
+  addPackageReview,
+  getPackageReviews,
 } from "../controllers/package.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { adminMiddleware } from "../middleware/admin.middleware.js";
@@ -632,5 +634,11 @@ router.route("/:id/images/:imageId").delete(deletePackageImage);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.route("/stats").get(getPackageStats);
+
+// Review routes
+router
+  .route("/:id/reviews")
+  .get(getPackageReviews)
+  .post(authMiddleware, addPackageReview);
 
 export default router;

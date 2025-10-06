@@ -390,6 +390,117 @@ const toggleFeaturedProperty = asyncHandler(async (req, res) => {
     );
 });
 
+// @desc    Add review to property
+// @route   POST /api/properties/:id/reviews
+// @access  Private
+const addPropertyReview = asyncHandler(async (req, res) => {
+  const { rating, comment, bookingId } = req.body;
+
+  if (!rating || rating < 1 || rating > 5) {
+    throw new ApiError(400, "Rating must be between 1 and 5");
+  }
+
+  if (!bookingId) {
+    throw new ApiError(400, "Booking ID is required");
+  }
+
+  const property = await Property.findById(req.params.id);
+
+  if (!property) {
+    throw new ApiError(404, "Property not found");
+  }
+
+  // Import Review model
+  const Review = (await import("../models/Review.model.js")).default;
+
+  // Check if user can review this booking
+  const eligibility = await Review.canUserReview(req.user._id, bookingId);
+
+  if (!eligibility.canReview) {
+    throw new ApiError(403, eligibility.reason);
+  }
+
+  // Verify booking is for this property
+  if (eligibility.booking.property.toString() !== req.params.id) {
+    throw new ApiError(400, "Booking is not for this property");
+  }
+
+  // Add review using the model method
+  await property.updateRatings(rating);
+
+  // Populate the updated property
+  await property.populate("reviews");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, property, "Review added successfully"));
+});
+
+// @desc    Get property reviews
+// @route   GET /api/properties/:id/reviews
+// @access  Public
+const getPropertyReviews = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    sortBy = "createdAt",
+    sortOrder = "desc",
+  } = req.query;
+
+  const property = await Property.findById(req.params.id);
+
+  if (!property) {
+    throw new ApiError(404, "Property not found");
+  }
+
+  // Import Review model
+  const Review = (await import("../models/Review.model.js")).default;
+
+  // Build filter
+  const filter = {
+    property: req.params.id,
+    status: "active",
+  };
+
+  // Set up sorting
+  const sortOptions = {};
+  sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
+
+  // Calculate skip for pagination
+  const skip = (page - 1) * limit;
+
+  // Get reviews
+  const reviews = await Review.find(filter)
+    .populate("author", "firstName lastName avatar")
+    .populate("response.respondedBy", "firstName lastName")
+    .sort(sortOptions)
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  // Get total count
+  const total = await Review.countDocuments(filter);
+
+  // Get rating statistics
+  const ratingStats = await Review.getAverageRatingForProperty(req.params.id);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        reviews,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit),
+        },
+        ratingStats,
+      },
+      "Property reviews retrieved successfully"
+    )
+  );
+});
+
 export {
   createProperty,
   getProperties,
@@ -398,4 +509,6 @@ export {
   deleteProperty,
   updatePropertyStatus,
   toggleFeaturedProperty,
+  addPropertyReview,
+  getPropertyReviews,
 };

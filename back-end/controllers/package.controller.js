@@ -644,6 +644,117 @@ const deletePackageImage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, packageData, "Image deleted successfully"));
 });
 
+// @desc    Add review to package
+// @route   POST /api/packages/:id/reviews
+// @access  Private
+const addPackageReview = asyncHandler(async (req, res) => {
+  const { rating, comment, bookingId } = req.body;
+
+  if (!rating || rating < 1 || rating > 5) {
+    throw new ApiError(400, "Rating must be between 1 and 5");
+  }
+
+  if (!bookingId) {
+    throw new ApiError(400, "Booking ID is required");
+  }
+
+  const packageData = await Package.findById(req.params.id);
+
+  if (!packageData) {
+    throw new ApiError(404, "Package not found");
+  }
+
+  // Import Review model
+  const Review = (await import("../models/Review.model.js")).default;
+
+  // Check if user can review this booking
+  const eligibility = await Review.canUserReview(req.user._id, bookingId);
+
+  if (!eligibility.canReview) {
+    throw new ApiError(403, eligibility.reason);
+  }
+
+  // Verify booking is for this package
+  if (eligibility.booking.package.toString() !== req.params.id) {
+    throw new ApiError(400, "Booking is not for this package");
+  }
+
+  // Add review using the model method
+  await packageData.updateRatings(rating);
+
+  // Populate the updated package
+  await packageData.populate("reviews");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, packageData, "Review added successfully"));
+});
+
+// @desc    Get package reviews
+// @route   GET /api/packages/:id/reviews
+// @access  Public
+const getPackageReviews = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    sortBy = "createdAt",
+    sortOrder = "desc",
+  } = req.query;
+
+  const packageData = await Package.findById(req.params.id);
+
+  if (!packageData) {
+    throw new ApiError(404, "Package not found");
+  }
+
+  // Import Review model
+  const Review = (await import("../models/Review.model.js")).default;
+
+  // Build filter
+  const filter = {
+    package: req.params.id,
+    status: "active",
+  };
+
+  // Set up sorting
+  const sortOptions = {};
+  sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
+
+  // Calculate skip for pagination
+  const skip = (page - 1) * limit;
+
+  // Get reviews
+  const reviews = await Review.find(filter)
+    .populate("author", "firstName lastName avatar")
+    .populate("response.respondedBy", "firstName lastName")
+    .sort(sortOptions)
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  // Get total count
+  const total = await Review.countDocuments(filter);
+
+  // Get rating statistics
+  const ratingStats = await Review.getAverageRatingForPackage(req.params.id);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        reviews,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit),
+        },
+        ratingStats,
+      },
+      "Package reviews retrieved successfully"
+    )
+  );
+});
+
 export {
   createPackage,
   getPackages,
@@ -658,4 +769,6 @@ export {
   getPackageStats,
   getPackagesByLocation,
   deletePackageImage,
+  addPackageReview,
+  getPackageReviews,
 };

@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import Select from "@/components/ui/Select";
+import { useBookings } from "../hooks/useBooking";
 
-const BookingPagination = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const totalItems = 50;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+const BookingPagination = ({ filters, onPageChange, onLimitChange }) => {
+  const { data: bookingsResponse } = useBookings(filters);
+  const pagination = bookingsResponse?.data?.pagination || {};
+
+  const currentPage = pagination.page || filters.page;
+  const totalPages = pagination.pages || 1;
+  const totalItems = pagination.total || 0;
+  const itemsPerPage = filters.limit;
 
   const itemsPerPageOptions = [
     { value: 10, label: "10" },
@@ -17,13 +21,12 @@ const BookingPagination = () => {
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      onPageChange(page);
     }
   };
 
   const handleItemsPerPageChange = (value) => {
-    setItemsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing items per page
+    onLimitChange(value);
   };
 
   const generatePageNumbers = () => {
