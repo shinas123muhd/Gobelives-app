@@ -163,11 +163,11 @@ const packageSchema = new mongoose.Schema(
     // Tags
     tags: [String],
 
-    // Category
+    // Category - Reference to Category model
     category: {
-      type: String,
-      enum: ["tour", "activity", "experience", "attraction", "accommodation"],
-      default: "tour",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: [true, "Category is required"],
     },
 
     // Transportation
@@ -281,10 +281,6 @@ const packageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-    categoryRef: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
     },
 
     // Status and Metadata
@@ -492,9 +488,9 @@ packageSchema.statics.findFeatured = function () {
 };
 
 // Static method to find packages by category
-packageSchema.statics.findByCategory = function (category) {
+packageSchema.statics.findByCategory = function (categoryId) {
   return this.find({
-    category: category,
+    category: categoryId,
     status: "active",
   }).sort({ popularity: -1 });
 };

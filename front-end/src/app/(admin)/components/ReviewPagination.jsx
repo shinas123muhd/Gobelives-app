@@ -1,13 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import Select from "@/components/ui/Select";
+import { ReviewPaginationShimmer } from "./ReviewShimmer";
 
-const ReviewPagination = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const totalItems = 50;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+const ReviewPagination = ({
+  currentPage = 1,
+  itemsPerPage = 10,
+  totalItems = 0,
+  totalPages = 0,
+  onPageChange = () => {},
+  onItemsPerPageChange = () => {},
+  loading = false,
+}) => {
   const itemsPerPageOptions = [
     { value: 10, label: "10" },
     { value: 20, label: "20" },
@@ -16,14 +20,15 @@ const ReviewPagination = () => {
   ];
 
   const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+    if (page >= 1 && page <= totalPages && !loading) {
+      onPageChange(page);
     }
   };
 
   const handleItemsPerPageChange = (value) => {
-    setItemsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing items per page
+    if (!loading) {
+      onItemsPerPageChange(value);
+    }
   };
 
   const generatePageNumbers = () => {
@@ -48,6 +53,10 @@ const ReviewPagination = () => {
     return pages;
   };
 
+  if (loading) {
+    return <ReviewPaginationShimmer />;
+  }
+
   return (
     <div className="flex items-center justify-between mt-2 px-6 py-4 bg-white rounded-lg">
       {/* Items per page selector */}
@@ -59,9 +68,12 @@ const ReviewPagination = () => {
             value={itemsPerPage}
             onChange={handleItemsPerPageChange}
             className="text-sm"
+            disabled={loading}
           />
         </div>
-        <span className="text-sm text-gray-600">of {totalItems}</span>
+        <span className="text-sm text-gray-600">
+          of {totalItems} {totalItems === 1 ? "review" : "reviews"}
+        </span>
       </div>
 
       {/* Pagination controls */}
@@ -69,7 +81,7 @@ const ReviewPagination = () => {
         {/* Previous button */}
         <button
           onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || loading}
           className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <IoChevronBackOutline className="text-lg" />
@@ -81,11 +93,12 @@ const ReviewPagination = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+              disabled={loading}
+              className={`px-3 py-1 text-sm rounded-md transition-colors disabled:cursor-not-allowed ${
                 currentPage === page
                   ? "bg-[#1D332C] text-white"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }`}
+              } ${loading ? "opacity-50" : ""}`}
             >
               {page}
             </button>
@@ -95,7 +108,7 @@ const ReviewPagination = () => {
         {/* Next button */}
         <button
           onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || loading}
           className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <IoChevronForwardOutline className="text-lg" />

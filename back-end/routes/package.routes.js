@@ -226,6 +226,7 @@ const router = express.Router();
 router
   .route("/")
   .post(
+    authMiddleware,
     upload.fields([
       { name: "coverImage", maxCount: 1 },
       { name: "images", maxCount: 10 },
@@ -412,6 +413,7 @@ router
   .route("/:id")
   .get(getPackage)
   .put(
+    authMiddleware,
     upload.fields([
       { name: "coverImage", maxCount: 1 },
       { name: "images", maxCount: 10 },

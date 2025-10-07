@@ -30,6 +30,7 @@ import "./models/Hotel.model.js";
 import "./models/Blogs.model.js";
 import "./models/Gallery.model.js";
 import "./models/Event.model.js";
+import "./models/Visitor.model.js";
 
 // Import routes
 import propertyRoutes from "./routes/property.routes.js";
@@ -46,10 +47,12 @@ import bookingRoutes from "./routes/booking.routes.js";
 import eventRoutes from "./routes/event.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 // import adminRoutes from "./routes/admin.routes.js";
 
 // Import middleware
 import { errorHandler } from "./middleware/error.middleware.js";
+import { trackVisitor } from "./middleware/visitor.middleware.js";
 
 // Import Swagger
 import { specs, swaggerUi } from "./config/swagger.js";
@@ -87,6 +90,9 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Initialize Passport
 app.use(passport.initialize());
 
+// Visitor tracking middleware (should be applied after body parsing)
+app.use(trackVisitor);
+
 // Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -113,8 +119,8 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/properties", propertyRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/categories", categoryPublicRoutes);
+app.use("/api/categories", categoryPublicRoutes); // Public routes first
+app.use("/api/categories", categoryRoutes); // Admin routes second
 app.use("/api/packages", packageRoutes);
 app.use("/api/packages", packagePublicRoutes);
 app.use("/api/coupons", couponRoutes);
@@ -124,6 +130,7 @@ app.use("/api/gallery", galleryRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 // app.use("/api/admin", adminRoutes);
 
 // Error handling middleware (should be last)

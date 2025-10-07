@@ -9,6 +9,46 @@ import {
 
 const router = express.Router();
 
+// Test endpoint to check if the route is working
+router.get("/test", (req, res) => {
+  res.json({
+    message: "Category public routes are working",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Debug endpoint to check categories in database
+router.get("/debug", async (req, res) => {
+  try {
+    const Category = (await import("../models/Category.model.js")).default;
+    const allCategories = await Category.find({});
+    const activeCategories = await Category.find({
+      isActive: true,
+      status: "active",
+    });
+
+    res.json({
+      message: "Debug info",
+      totalCategories: allCategories.length,
+      activeCategories: activeCategories.length,
+      allCategories: allCategories.map((cat) => ({
+        id: cat._id,
+        name: cat.name,
+        status: cat.status,
+        isActive: cat.isActive,
+      })),
+      activeCategoriesList: activeCategories.map((cat) => ({
+        id: cat._id,
+        name: cat.name,
+        status: cat.status,
+        isActive: cat.isActive,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 /**
  * @swagger
  * tags:

@@ -191,7 +191,7 @@ const EditPackage = () => {
         whatsInside: data.whatsInside || [],
         languages: data.languages || [],
         tags: data.tags || [],
-        category: data.category || "",
+        category: data.category?._id || data.category || "",
         cancellationPolicy: data.cancellationPolicy || "moderate",
         cancellationDetails: data.cancellationDetails || {},
         healthSafetyMeasures: data.healthSafetyMeasures || [],
@@ -411,20 +411,42 @@ const EditPackage = () => {
   const handleFileUpload = (files) => {
     setFormData((prev) => ({
       ...prev,
-      images: files,
+      images: files, // ImageGallery already handles combining existing and new files
     }));
   };
 
-  const handleFileRemove = async (imageToRemove) => {
-    try {
-      await deletePackageImage.mutateAsync({
-        packageId,
-        imageId: imageToRemove._id,
-      });
-      toast.success("Image deleted successfully");
-    } catch (error) {
-      console.error("Error deleting image:", error);
-      toast.error("Failed to delete image. Please try again.");
+  const handleFileRemove = async (field, imageToRemove) => {
+    if (field === "images") {
+      try {
+        await deletePackageImage.mutateAsync({
+          packageId,
+          imageId: imageToRemove._id,
+        });
+
+        // Update local state to remove the deleted image
+        setFormData((prev) => ({
+          ...prev,
+          images: prev.images.filter((img) => img._id !== imageToRemove._id),
+        }));
+
+        // If the deleted image was the cover image, clear it
+        if (formData.coverImage === imageToRemove.url) {
+          setFormData((prev) => ({
+            ...prev,
+            coverImage: "",
+          }));
+        }
+
+        toast.success("Image deleted successfully");
+      } catch (error) {
+        console.error("Error deleting image:", error);
+        toast.error("Failed to delete image. Please try again.");
+      }
+    } else if (field === "coverImage") {
+      setFormData((prev) => ({
+        ...prev,
+        coverImage: "",
+      }));
     }
   };
 
@@ -762,6 +784,11 @@ const EditPackage = () => {
         "priceExcludes",
         JSON.stringify(formData.price.priceExcludes)
       );
+
+      // Add cover image
+      if (formData.coverImage) {
+        submitData.append("coverImage", formData.coverImage);
+      }
 
       // Add files
       if (formData.images && formData.images.length > 0) {

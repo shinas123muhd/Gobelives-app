@@ -42,7 +42,7 @@ const PackageCard = ({
       <div className="relative overflow-hidden rounded-t-xl min-h-48">
         <Image
           src={
-            packageData.coverImage?.url ||
+            packageData.coverImage ||
             packageData.images?.[0]?.url ||
             "/placeholder-package.jpg"
           }
@@ -88,7 +88,7 @@ const PackageCard = ({
           </div>
           <div className="flex items-center gap-2 text-gray-600 text-[13px]">
             <IoLocationOutline className="text-base" />
-            <span>{packageData.category || "Package"}</span>
+            <span>{packageData.category?.name || "Package"}</span>
           </div>
         </div>
 

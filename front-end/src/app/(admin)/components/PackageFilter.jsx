@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import Select from "@/components/ui/Select";
 import { IoSearchOutline, IoAddCircleOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import { useActiveCategories } from "../hooks/useCategory";
 
 const PackageFilter = ({ filters, onFiltersChange }) => {
   const router = useRouter();
 
+  // Use the useActiveCategories hook
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useActiveCategories();
   const statusOptions = [
     { value: "", label: "Status: All" },
     { value: "active", label: "Active" },
@@ -14,14 +18,20 @@ const PackageFilter = ({ filters, onFiltersChange }) => {
     { value: "suspended", label: "Suspended" },
   ];
 
-  const categoryOptions = [
-    { value: "", label: "All Categories" },
-    { value: "tour", label: "Tour" },
-    { value: "activity", label: "Activity" },
-    { value: "experience", label: "Experience" },
-    { value: "attraction", label: "Attraction" },
-    { value: "accommodation", label: "Accommodation" },
-  ];
+  // Build category options from the hook data
+  const categoryOptions = React.useMemo(() => {
+    const baseOptions = [{ value: "", label: "All Categories" }];
+
+    if (categoriesData?.success && categoriesData?.data) {
+      const categories = categoriesData.data.map((category) => ({
+        value: category._id,
+        label: category.name,
+      }));
+      return [...baseOptions, ...categories];
+    }
+
+    return baseOptions;
+  }, [categoriesData]);
 
   const featuredOptions = [
     { value: "", label: "All Packages" },
@@ -50,7 +60,7 @@ const PackageFilter = ({ filters, onFiltersChange }) => {
   };
 
   return (
-    <div className="flex items-center justify-between mt-6 mb-6">
+    <div className="flex items-center justify-between mt-6 mb-3 md:mb-6">
       <div className="flex items-center gap-2">
         {/* Search Bar */}
         <div className="relative bg-white rounded-lg ">
@@ -71,7 +81,7 @@ const PackageFilter = ({ filters, onFiltersChange }) => {
           value={filters.categoryFilter}
           onChange={handleCategoryChange}
           placeholder="All Categories"
-          className="w-40"
+          className="min-w-40 hidden md:block"
         />
 
         {/* Status Filter */}
@@ -80,7 +90,7 @@ const PackageFilter = ({ filters, onFiltersChange }) => {
           value={filters.statusFilter}
           onChange={handleStatusChange}
           placeholder="Status: All"
-          className="w-40"
+          className="min-w-40 hidden md:block"
         />
 
         {/* Featured Filter */}
@@ -89,7 +99,7 @@ const PackageFilter = ({ filters, onFiltersChange }) => {
           value={filters.featuredFilter}
           onChange={handleFeaturedChange}
           placeholder="All Packages"
-          className="w-40"
+          className="min-w-40 hidden md:block"
         />
       </div>
 

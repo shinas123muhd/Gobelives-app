@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { packageApi } from "../../../services/packageApi";
+import { categoryKeys } from "./useCategory";
 
 // Query keys for React Query
 export const packageKeys = {
@@ -160,6 +161,7 @@ export const useUpdatePackage = () => {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: packageKeys.lists() });
       queryClient.invalidateQueries({ queryKey: packageKeys.featured() });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError: (error) => {
       console.error("Error updating package:", error);

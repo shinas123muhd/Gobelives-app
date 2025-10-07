@@ -93,7 +93,7 @@ const Select = ({
                 type="button"
                 onClick={() => handleSelect(option)}
                 className={`
-                w-full px-3 py-2 text-left text-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none
+                w-full px-3 py-2 whitespace-nowrap text-left text-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none
                 transition-colors duration-150
                 ${
                   selectedValue === option.value

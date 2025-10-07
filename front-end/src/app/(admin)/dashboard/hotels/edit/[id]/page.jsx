@@ -812,12 +812,103 @@ const EditHotel = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1D332C] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading hotel...</p>
+      <section className="w-full h-full p-6 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="mb-8">
+            <div className="h-8 bg-gray-200 rounded-lg w-64 mb-4 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-96 animate-pulse"></div>
+          </div>
+
+          {/* Form Skeleton */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left Column */}
+              <div className="space-y-6">
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <div className="h-6 bg-gray-200 rounded w-40 animate-pulse"></div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+
+                {/* Location Information */}
+                <div className="space-y-4">
+                  <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+                    <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                {/* Hotel Classification */}
+                <div className="space-y-4">
+                  <div className="h-6 bg-gray-200 rounded w-36 animate-pulse"></div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+
+                {/* Room Information */}
+                <div className="space-y-4">
+                  <div className="h-6 bg-gray-200 rounded w-28 animate-pulse"></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Image Upload Section */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="h-6 bg-gray-200 rounded w-32 mb-4 animate-pulse"></div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square bg-gray-200 rounded-lg animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-8 pt-6 border-t border-gray-200 flex justify-end space-x-4">
+              <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 

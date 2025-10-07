@@ -22,7 +22,7 @@ const Packages = () => {
   }, []);
 
   return (
-    <section className="w-full flex flex-col overflow-y-auto h-full px-6 pb-6">
+    <section className="w-full flex flex-col overflow-y-auto h-full px-2 md:px-6 pb-6">
       {/* Filter Section */}
       <PackageFilter filters={filters} onFiltersChange={handleFiltersChange} />
 

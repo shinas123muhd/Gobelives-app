@@ -1,14 +1,15 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { SIDEBAR_ITEMS, ADMIN_SECTION_ITEMS } from "../constant";
 import {
   MdKeyboardArrowRight,
   MdOutlineKeyboardArrowDown,
 } from "react-icons/md";
+import { HiX } from "react-icons/hi";
 import { useAuth } from "@/contexts/AuthContext";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const router = useRouter();
   const { user } = useAuth();
 
@@ -17,6 +18,13 @@ const Sidebar = () => {
     "manage-destinations": true,
     "seo-tools": false,
   });
+
+  // Close sidebar when route changes on mobile
+  useEffect(() => {
+    if (isOpen && window.innerWidth < 768) {
+      onClose();
+    }
+  }, [pathname, isOpen, onClose]);
 
   const toggleExpanded = (itemId) => {
     setExpandedItems((prev) => ({
@@ -157,33 +165,62 @@ const Sidebar = () => {
   };
 
   return (
-    <section className="bg-[#2B4B40] h-full overflow-hidden px-2 min-w-[240px] flex flex-col">
-      {/* Logo */}
-      <div className="px-4 py-4  ">
-        <h1 className="text-2xl font-bold text-yellow-400">Gobelives</h1>
-      </div>
-      <div className="px-4 pt-2 pb-4  sticky top-0 bg-[#2B4B40]">
-        <h2 className="text-xs font-medium text-white/70 uppercase tracking-wider">
-          MAIN MENU
-        </h2>
-      </div>
-      {/* Main Menu Section */}
-      <div className="flex-1 h-full overflow-y-auto  custom-scrollbar">
-        <div className="space-y-1 ">{SIDEBAR_ITEMS.map(renderMenuItem)}</div>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      {/* Admin Section */}
-      <div className="px-4 border-t border-white/20 pt-3 mt-4">
-        <h2 className="text-xs font-medium text-white/70 uppercase tracking-wider">
-          ADMIN
-        </h2>
-      </div>
-      <div className=" py-2 ">
-        <div className="space-y-1">
-          {ADMIN_SECTION_ITEMS.map(renderMenuItem)}
+      {/* Sidebar */}
+      <section
+        className={`
+        bg-[#2B4B40] h-full overflow-hidden px-2 min-w-[240px] flex flex-col
+        fixed md:relative z-50 md:z-auto
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        w-64 md:w-auto
+      `}
+      >
+        {/* Mobile Close Button */}
+        <div className="md:hidden flex justify-end p-4">
+          <button
+            onClick={onClose}
+            className="text-white hover:text-yellow-400 transition-colors"
+          >
+            <HiX className="text-2xl" />
+          </button>
         </div>
-      </div>
-    </section>
+
+        {/* Logo */}
+        <div className="px-4 py-4">
+          <h1 className="text-2xl font-bold text-yellow-400">Gobelives</h1>
+        </div>
+        <div className="px-4 pt-2 pb-4  sticky top-0 bg-[#2B4B40]">
+          <h2 className="text-xs font-medium text-white/70 uppercase tracking-wider">
+            MAIN MENU
+          </h2>
+        </div>
+        {/* Main Menu Section */}
+        <div className="flex-1 h-full overflow-y-auto  custom-scrollbar">
+          <div className="space-y-1 ">{SIDEBAR_ITEMS.map(renderMenuItem)}</div>
+        </div>
+
+        {/* Admin Section */}
+        <div className="px-4 border-t border-white/20 pt-3 mt-4">
+          <h2 className="text-xs font-medium text-white/70 uppercase tracking-wider">
+            ADMIN
+          </h2>
+        </div>
+        <div className=" py-2 ">
+          <div className="space-y-1">
+            {ADMIN_SECTION_ITEMS.map(renderMenuItem)}
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
 

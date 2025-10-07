@@ -718,6 +718,11 @@ const CreatePackage = () => {
         JSON.stringify(formData.price.priceExcludes)
       );
 
+      // Add cover image
+      if (formData.coverImage) {
+        submitData.append("coverImage", formData.coverImage);
+      }
+
       // Add files
       if (formData.images && formData.images.length > 0) {
         formData.images.forEach((file) => {

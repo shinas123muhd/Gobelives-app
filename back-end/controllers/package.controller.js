@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import Package from "../models/Package.model.js";
+import Category from "../models/Category.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -70,11 +72,15 @@ const createPackage = asyncHandler(async (req, res) => {
   // Handle cover image
   let coverImage = "";
   if (req.files && req.files.coverImage) {
+    // New cover image file uploaded
     const coverImageResult = await uploadOnCloudinary(
       req.files.coverImage[0],
       "packages/cover"
     );
     coverImage = coverImageResult.secure_url;
+  } else if (req.body.coverImage) {
+    // Cover image URL provided (existing image selected as cover)
+    coverImage = req.body.coverImage;
   } else if (images.length > 0) {
     // Use first image as cover if no cover image provided
     coverImage = images[0].url;
@@ -127,6 +133,19 @@ const createPackage = asyncHandler(async (req, res) => {
 
   // Populate owner details
   await packageData.populate("owner", "firstName lastName email");
+
+  // Update category package count
+  if (packageData.category) {
+    const category = await Category.findById(packageData.category);
+    if (category) {
+      // Update package count manually
+      category.packageCount = await Package.countDocuments({
+        category: packageData.category,
+        status: "active",
+      });
+      await category.save();
+    }
+  }
 
   return res
     .status(201)
@@ -189,7 +208,7 @@ const getPackages = asyncHandler(async (req, res) => {
   // Get packages with filtering, sorting, and pagination
   const packages = await Package.find(filter)
     .populate("owner", "firstName lastName email")
-    .populate("categoryRef", "name slug")
+    .populate("category", "name slug")
     .sort(sortOptions)
     .skip(skip)
     .limit(parseInt(limit));
@@ -220,7 +239,7 @@ const getPackages = asyncHandler(async (req, res) => {
 const getPackage = asyncHandler(async (req, res) => {
   const packageData = await Package.findById(req.params.id)
     .populate("owner", "firstName lastName email")
-    .populate("categoryRef", "name slug")
+    .populate("category", "name slug")
     .populate("reviews")
     .populate("bookings");
 
@@ -254,6 +273,9 @@ const updatePackage = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Not authorized to update this package");
   }
 
+  // Store the original category ID before any updates
+  const originalCategoryId = packageData.category;
+
   const {
     title,
     description,
@@ -285,26 +307,31 @@ const updatePackage = asyncHandler(async (req, res) => {
 
   // Handle image uploads if new images are provided
   if (req.files && req.files.images) {
-    // Delete old images from Cloudinary
-    if (packageData.images && packageData.images.length > 0) {
-      const deletePromises = packageData.images.map((image) =>
-        deleteFromCloudinary(image.publicId)
-      );
-      await Promise.all(deletePromises);
-    }
-
     // Upload new images
     const uploadPromises = req.files.images.map((file) =>
       uploadOnCloudinary(file, "packages")
     );
     const uploadResults = await Promise.all(uploadPromises);
-    packageData.images = uploadResults.map((result, index) => ({
+
+    // Create new image objects
+    const newImages = uploadResults.map((result, index) => ({
       url: result.secure_url,
       publicId: result.public_id,
       altText: result.original_filename || title,
-      isPrimary: index === 0,
-      order: index,
+      isPrimary: false, // Don't set new images as primary by default
+      order: (packageData.images ? packageData.images.length : 0) + index,
     }));
+
+    // Append new images to existing ones
+    if (packageData.images && packageData.images.length > 0) {
+      packageData.images = [...packageData.images, ...newImages];
+    } else {
+      packageData.images = newImages;
+      // Set first image as primary if no existing images
+      if (newImages.length > 0) {
+        newImages[0].isPrimary = true;
+      }
+    }
   }
 
   // Handle cover image if a new one is provided
@@ -315,6 +342,9 @@ const updatePackage = asyncHandler(async (req, res) => {
       "packages/cover"
     );
     packageData.coverImage = coverImageResult.secure_url;
+  } else if (req.body.coverImage) {
+    // Cover image URL provided (existing image selected as cover)
+    packageData.coverImage = req.body.coverImage;
   }
 
   // Parse JSON fields if they are strings
@@ -365,7 +395,33 @@ const updatePackage = asyncHandler(async (req, res) => {
 
   await packageData.save();
   await packageData.populate("owner", "firstName lastName email");
-  await packageData.populate("categoryRef", "name slug");
+  await packageData.populate("category", "name slug");
+
+  // Update category package count for the current category
+  if (packageData.category) {
+    const category = await Category.findById(packageData.category);
+    if (category) {
+      // Update package count manually
+      category.packageCount = await Package.countDocuments({
+        category: packageData.category,
+        status: "active",
+      });
+      await category.save();
+    }
+  }
+
+  // If category was changed, also update the old category's count
+  if (category && category !== originalCategoryId && originalCategoryId) {
+    const oldCategory = await Category.findById(originalCategoryId);
+    if (oldCategory) {
+      // Update package count for the old category
+      oldCategory.packageCount = await Package.countDocuments({
+        category: originalCategoryId,
+        status: "active",
+      });
+      await oldCategory.save();
+    }
+  }
 
   return res
     .status(200)
@@ -398,8 +454,24 @@ const deletePackage = asyncHandler(async (req, res) => {
     await Promise.all(deletePromises);
   }
 
+  // Store category ID before deletion for package count update
+  const categoryId = packageData.category;
+
   // Delete package from database
   await Package.findByIdAndDelete(req.params.id);
+
+  // Update category package count
+  if (categoryId) {
+    const category = await Category.findById(categoryId);
+    if (category) {
+      // Update package count manually
+      category.packageCount = await Package.countDocuments({
+        category: categoryId,
+        status: "active",
+      });
+      await category.save();
+    }
+  }
 
   return res
     .status(200)
@@ -422,10 +494,23 @@ const updatePackageStatus = asyncHandler(async (req, res) => {
     { new: true, runValidators: true }
   )
     .populate("owner", "firstName lastName email")
-    .populate("categoryRef", "name slug");
+    .populate("category", "name slug");
 
   if (!packageData) {
     throw new ApiError(404, "Package not found");
+  }
+
+  // Update category package count when status changes
+  if (packageData.category) {
+    const category = await Category.findById(packageData.category);
+    if (category) {
+      // Update package count manually
+      category.packageCount = await Package.countDocuments({
+        category: packageData.category,
+        status: "active",
+      });
+      await category.save();
+    }
   }
 
   return res
@@ -450,7 +535,7 @@ const toggleFeaturedPackage = asyncHandler(async (req, res) => {
   await packageData.save();
 
   await packageData.populate("owner", "firstName lastName email");
-  await packageData.populate("categoryRef", "name slug");
+  await packageData.populate("category", "name slug");
 
   return res
     .status(200)
@@ -469,7 +554,7 @@ const toggleFeaturedPackage = asyncHandler(async (req, res) => {
 const getFeaturedPackages = asyncHandler(async (req, res) => {
   const packages = await Package.findFeatured()
     .populate("owner", "firstName lastName")
-    .populate("categoryRef", "name slug");
+    .populate("category", "name slug");
 
   return res
     .status(200)
@@ -489,7 +574,7 @@ const getPackagesByCategory = asyncHandler(async (req, res) => {
 
   const packages = await Package.findByCategory(category)
     .populate("owner", "firstName lastName")
-    .populate("categoryRef", "name slug")
+    .populate("category", "name slug")
     .skip(skip)
     .limit(parseInt(limit));
 
@@ -527,7 +612,7 @@ const searchPackages = asyncHandler(async (req, res) => {
 
   const packages = await Package.searchPackages(searchTerm, filters)
     .populate("owner", "firstName lastName")
-    .populate("categoryRef", "name slug");
+    .populate("category", "name slug");
 
   return res
     .status(200)
@@ -563,7 +648,7 @@ const getPackagesByLocation = asyncHandler(async (req, res) => {
 
   const packages = await Package.findByLocation(city, country)
     .populate("owner", "firstName lastName")
-    .populate("categoryRef", "name slug")
+    .populate("category", "name slug")
     .skip(skip)
     .limit(parseInt(limit));
 
