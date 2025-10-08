@@ -123,9 +123,9 @@ const categorySchema = new mongoose.Schema(
   }
 );
 
-// Virtual for packages (linked to Property model)
+// Virtual for packages (linked to Package model)
 categorySchema.virtual("packages", {
-  ref: "Property",
+  ref: "Package",
   localField: "_id",
   foreignField: "category",
 });
@@ -174,9 +174,9 @@ categorySchema.pre("save", function (next) {
 // Pre-save middleware to update package count
 categorySchema.pre("save", async function (next) {
   if (this.isModified("status") || this.isNew) {
-    // Update package count based on active properties in this category
-    const Property = mongoose.model("Property");
-    this.packageCount = await Property.countDocuments({
+    // Update package count based on active packages in this category
+    const Package = mongoose.model("Package");
+    this.packageCount = await Package.countDocuments({
       category: this._id,
       status: "active",
     });
@@ -186,10 +186,10 @@ categorySchema.pre("save", async function (next) {
 
 // Instance method to check if category can be deleted
 categorySchema.methods.canBeDeleted = async function () {
-  const Property = mongoose.model("Property");
+  const Package = mongoose.model("Package");
 
-  // Check if category has any active properties
-  const activeProperties = await Property.countDocuments({
+  // Check if category has any active packages
+  const activePackages = await Package.countDocuments({
     category: this._id,
     status: "active",
   });
@@ -198,10 +198,10 @@ categorySchema.methods.canBeDeleted = async function () {
   const hasSubCategories = this.subCategories && this.subCategories.length > 0;
 
   return {
-    canDelete: activeProperties === 0 && !hasSubCategories,
+    canDelete: activePackages === 0 && !hasSubCategories,
     reason:
-      activeProperties > 0
-        ? `Cannot delete category with ${activeProperties} active properties`
+      activePackages > 0
+        ? `Cannot delete category with ${activePackages} active packages`
         : hasSubCategories
         ? "Cannot delete category with subcategories"
         : null,
@@ -217,8 +217,8 @@ categorySchema.methods.toggleStatus = function () {
 
 // Instance method to update package count
 categorySchema.methods.updatePackageCount = async function () {
-  const Property = mongoose.model("Property");
-  this.packageCount = await Property.countDocuments({
+  const Package = mongoose.model("Package");
+  this.packageCount = await Package.countDocuments({
     category: this._id,
     status: "active",
   });

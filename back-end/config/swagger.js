@@ -539,14 +539,8 @@ const options = {
             },
             category: {
               type: "string",
-              enum: [
-                "tour",
-                "activity",
-                "experience",
-                "attraction",
-                "accommodation",
-              ],
-              example: "tour",
+              description: "Category ID reference",
+              example: "60f7b3b3b3b3b3b3b3b3b3b3",
             },
             ratings: {
               type: "object",

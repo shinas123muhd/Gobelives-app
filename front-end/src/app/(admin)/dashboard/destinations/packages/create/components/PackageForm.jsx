@@ -13,8 +13,10 @@ import Select from "@/components/ui/Select";
 import RadioGroup from "@/components/ui/RadioGroup";
 import Checkbox from "@/components/ui/Checkbox";
 import FileUpload from "@/components/ui/FileUpload";
+import ImageGallery from "@/components/ui/ImageGallery";
 import Button from "@/components/ui/Button";
 import { IoAddOutline, IoTrashOutline, IoCloseOutline } from "react-icons/io5";
+import { useActiveCategories } from "@/app/(admin)/hooks/useCategory";
 
 const PackageForm = ({
   formData,
@@ -36,13 +38,20 @@ const PackageForm = ({
   handleSubmit,
   isEditMode = false,
 }) => {
-  const categoryOptions = [
-    { value: "tour", label: "Tour" },
-    { value: "activity", label: "Activity" },
-    { value: "experience", label: "Experience" },
-    { value: "attraction", label: "Attraction" },
-    { value: "accommodation", label: "Accommodation" },
-  ];
+  // Use the useActiveCategories hook
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useActiveCategories();
+
+  // Build category options from the hook data
+  const categoryOptions = React.useMemo(() => {
+    if (categoriesData?.success && categoriesData?.data) {
+      return categoriesData.data.map((category) => ({
+        value: category._id,
+        label: category.name,
+      }));
+    }
+    return [];
+  }, [categoriesData]);
 
   const currencyOptions = [
     { value: "USD", label: "USD" },
@@ -80,8 +89,9 @@ const PackageForm = ({
   ];
 
   const statusOptions = [
-    { value: "active", label: "Publish" },
-    { value: "draft", label: "Un Publish" },
+    { value: "active", label: "Active (Published)" },
+    { value: "draft", label: "Draft (Unpublished)" },
+    { value: "inactive", label: "Inactive (Hidden)" },
   ];
 
   return (
@@ -1028,16 +1038,24 @@ const PackageForm = ({
           <Card className="border-none">
             <CardHeader>
               <CardTitle>Package Gallery</CardTitle>
-              <CardDescription>Upload images for your package</CardDescription>
+              <CardDescription>
+                Upload images for your package. Click the star icon to set an
+                image as the cover image.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <FileUpload
-                accept="image/*"
-                multiple
-                maxFiles={6}
-                onFilesChange={handleFileUpload}
-                onFileRemove={handleFileRemove}
+              <ImageGallery
+                onFilesChange={(files) => handleFileUpload(files)}
+                onFileRemove={
+                  handleFileRemove
+                    ? (image) => handleFileRemove("images", image)
+                    : undefined
+                }
+                onCoverImageChange={(coverUrl) =>
+                  handleInputChange("coverImage", coverUrl)
+                }
                 existingFiles={formData.images}
+                coverImage={formData.coverImage}
                 label="Package Photos"
                 required
               />
@@ -1142,23 +1160,21 @@ const PackageForm = ({
             </CardHeader>
             <CardContent className="space-y-4">
               <RadioGroup
-                label="Package Visibility"
-                name="visibility"
-                options={visibilityOptions}
-                value={formData.status === "active" ? "public" : "private"}
-                onChange={(e) => {
-                  const status =
-                    e.target.value === "public" ? "active" : "draft";
-                  handleInputChange("status", status);
-                }}
-              />
-
-              <RadioGroup
                 label="Package Status"
                 name="status"
                 options={statusOptions}
-                value={formData.status === "active" ? "active" : "draft"}
+                value={formData.status}
                 onChange={(e) => handleInputChange("status", e.target.value)}
+              />
+
+              <RadioGroup
+                label="Package Visibility"
+                name="visibility"
+                options={visibilityOptions}
+                value={formData.visibility}
+                onChange={(e) =>
+                  handleInputChange("visibility", e.target.value)
+                }
               />
 
               <Input label="Schedule" placeholder="Select Date" type="date" />

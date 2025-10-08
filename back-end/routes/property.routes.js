@@ -7,6 +7,8 @@ import {
   deleteProperty,
   updatePropertyStatus,
   toggleFeaturedProperty,
+  addPropertyReview,
+  getPropertyReviews,
 } from "../controllers/property.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { adminMiddleware } from "../middleware/admin.middleware.js";
@@ -506,5 +508,11 @@ router.route("/:id/status").patch(updatePropertyStatus);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.route("/:id/featured").patch(toggleFeaturedProperty);
+
+// Review routes
+router
+  .route("/:id/reviews")
+  .get(getPropertyReviews)
+  .post(authMiddleware, addPropertyReview);
 
 export default router;

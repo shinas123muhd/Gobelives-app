@@ -58,7 +58,7 @@ const CategoryFilter = ({
           value={statusFilter}
           onChange={handleStatusChange}
           placeholder="Status: All"
-          className="w-40"
+          className="min-w-40"
         />
       </div>
 

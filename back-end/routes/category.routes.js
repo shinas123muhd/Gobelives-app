@@ -8,10 +8,6 @@ import {
   updateCategoryStatus,
   toggleCategoryStatus,
   toggleFeaturedCategory,
-  getActiveCategories,
-  getFeaturedCategories,
-  getCategoryHierarchy,
-  searchCategories,
   getCategoryStats,
   updateCategoryPackageCount,
   bulkUpdateCategoryStatus,
@@ -152,8 +148,8 @@ const router = express.Router();
  */
 router
   .route("/")
-  .post(upload.single("image"), createCategory)
-  .get(getCategories);
+  .post(authMiddleware, adminMiddleware, upload.single("image"), createCategory)
+  .get(authMiddleware, adminMiddleware, getCategories);
 
 /**
  * @swagger
@@ -331,9 +327,9 @@ router
  */
 router
   .route("/:id")
-  .get(getCategory)
-  .put(upload.single("image"), updateCategory)
-  .delete(deleteCategory);
+  .get(authMiddleware, adminMiddleware, getCategory)
+  .put(authMiddleware, adminMiddleware, upload.single("image"), updateCategory)
+  .delete(authMiddleware, adminMiddleware, deleteCategory);
 
 /**
  * @swagger
@@ -394,7 +390,9 @@ router
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.route("/:id/status").patch(updateCategoryStatus);
+router
+  .route("/:id/status")
+  .patch(authMiddleware, adminMiddleware, updateCategoryStatus);
 
 /**
  * @swagger
@@ -442,7 +440,9 @@ router.route("/:id/status").patch(updateCategoryStatus);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.route("/:id/featured").patch(toggleFeaturedCategory);
+router
+  .route("/:id/featured")
+  .patch(authMiddleware, adminMiddleware, toggleFeaturedCategory);
 
 /**
  * @swagger
@@ -496,6 +496,172 @@ router.route("/:id/featured").patch(toggleFeaturedCategory);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.route("/stats").get(getCategoryStats);
+router.route("/stats").get(authMiddleware, adminMiddleware, getCategoryStats);
+
+/**
+ * @swagger
+ * /categories/{id}/toggle-status:
+ *   patch:
+ *     summary: Toggle category status (Admin only)
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category status toggled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Category'
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router
+  .route("/:id/toggle-status")
+  .patch(authMiddleware, adminMiddleware, toggleCategoryStatus);
+
+/**
+ * @swagger
+ * /categories/{id}/update-package-count:
+ *   patch:
+ *     summary: Update category package count (Admin only)
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category package count updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Category'
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router
+  .route("/:id/update-package-count")
+  .patch(authMiddleware, adminMiddleware, updateCategoryPackageCount);
+
+/**
+ * @swagger
+ * /categories/bulk-status:
+ *   patch:
+ *     summary: Bulk update category status (Admin only)
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - categoryIds
+ *               - status
+ *             properties:
+ *               categoryIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["60f7b3b3b3b3b3b3b3b3b3b3", "60f7b3b3b3b3b3b3b3b3b3b4"]
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive]
+ *                 example: active
+ *     responses:
+ *       200:
+ *         description: Categories updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         modifiedCount:
+ *                           type: number
+ *                           example: 2
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router
+  .route("/bulk-status")
+  .patch(authMiddleware, adminMiddleware, bulkUpdateCategoryStatus);
 
 export default router;

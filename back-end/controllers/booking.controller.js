@@ -2,6 +2,7 @@ import Booking from "../models/Booking.model.js";
 import Hotel from "../models/Hotel.model.js";
 import Package from "../models/Package.model.js";
 import User from "../models/User.model.js";
+import Event from "../models/Event.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -118,6 +119,16 @@ const createBooking = asyncHandler(async (req, res) => {
   user.bookings.push(booking._id);
   user.totalBookings += 1;
   await user.save();
+
+  // Auto-create event from booking for calendar view
+  try {
+    const event = await Event.createFromBooking(booking);
+    booking.linkedEvent = event._id;
+    await booking.save();
+  } catch (error) {
+    console.error("Error creating event from booking:", error);
+    // Don't fail the booking if event creation fails
+  }
 
   // Populate booking details
   await booking.populate("user", "firstName lastName email");
@@ -396,6 +407,19 @@ const cancelBooking = asyncHandler(async (req, res) => {
   // Use the model method to cancel
   await booking.cancelBooking(req.user._id, reason);
 
+  // Update linked event status if exists
+  if (booking.linkedEvent) {
+    try {
+      const event = await Event.findById(booking.linkedEvent);
+      if (event) {
+        event.status = "cancelled";
+        await event.save();
+      }
+    } catch (error) {
+      console.error("Error updating linked event:", error);
+    }
+  }
+
   // Calculate refund based on cancellation policy (simplified)
   const now = new Date();
   const hoursUntilCheckIn = (booking.checkIn - now) / (1000 * 60 * 60);
@@ -630,6 +654,15 @@ const deleteBooking = asyncHandler(async (req, res) => {
 
   if (!booking) {
     throw new ApiError(404, "Booking not found");
+  }
+
+  // Delete linked event if exists
+  if (booking.linkedEvent) {
+    try {
+      await Event.findByIdAndDelete(booking.linkedEvent);
+    } catch (error) {
+      console.error("Error deleting linked event:", error);
+    }
   }
 
   await Booking.findByIdAndDelete(req.params.id);

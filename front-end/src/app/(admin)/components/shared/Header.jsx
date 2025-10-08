@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { IoMdLogOut } from "react-icons/io";
+import { HiMenuAlt3 } from "react-icons/hi";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { getTitleByPath } from "../../constants/routes";
 
-const Header = () => {
+const Header = ({ onMenuToggle }) => {
   const pathname = usePathname();
   const title = getTitleByPath(pathname);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -19,7 +20,16 @@ const Header = () => {
 
   return (
     <div className="w-full flex items-center px-6 pt-6 justify-between">
-      <h3 className="font-semibold text-xl text-[#23272E]">{title}</h3>
+      <div className="flex items-center gap-4">
+        {/* Mobile Menu Toggle Button */}
+        <button
+          onClick={onMenuToggle}
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <HiMenuAlt3 className="text-2xl text-[#4B465C]" />
+        </button>
+        <h3 className="font-semibold text-xl text-[#23272E]">{title}</h3>
+      </div>
       <div className="flex items-center gap-x-5 justify-end">
         <div className="relative">
           <IoIosNotificationsOutline className="text-3xl text-[#4B465C]" />

@@ -34,7 +34,7 @@ const RadioGroup = ({
               name={name}
               value={option.value}
               checked={value === option.value}
-              onChange={onChange}
+              onChange={(e) => onChange && onChange(e)}
               disabled={disabled}
               className={`
                 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300

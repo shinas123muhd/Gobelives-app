@@ -13,6 +13,8 @@ import {
   getPackageStats,
   getPackagesByLocation,
   deletePackageImage,
+  addPackageReview,
+  getPackageReviews,
 } from "../controllers/package.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { adminMiddleware } from "../middleware/admin.middleware.js";
@@ -224,6 +226,7 @@ const router = express.Router();
 router
   .route("/")
   .post(
+    authMiddleware,
     upload.fields([
       { name: "coverImage", maxCount: 1 },
       { name: "images", maxCount: 10 },
@@ -410,6 +413,7 @@ router
   .route("/:id")
   .get(getPackage)
   .put(
+    authMiddleware,
     upload.fields([
       { name: "coverImage", maxCount: 1 },
       { name: "images", maxCount: 10 },
@@ -632,5 +636,11 @@ router.route("/:id/images/:imageId").delete(deletePackageImage);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.route("/stats").get(getPackageStats);
+
+// Review routes
+router
+  .route("/:id/reviews")
+  .get(getPackageReviews)
+  .post(authMiddleware, addPackageReview);
 
 export default router;

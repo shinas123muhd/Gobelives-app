@@ -345,6 +345,7 @@ const toggleFeaturedCategory = asyncHandler(async (req, res) => {
 // @route   GET /api/categories/active
 // @access  Public
 const getActiveCategories = asyncHandler(async (req, res) => {
+  console.log("categ");
   const categories = await Category.findActive().populate(
     "subCategories",
     "name slug packageCount"
