@@ -5,6 +5,7 @@ import InputField from "../components/InputField";
 import Button from "../components/Button";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const RegisterSchema = Yup.object().shape({
   email: Yup.string()
@@ -13,8 +14,16 @@ const RegisterSchema = Yup.object().shape({
 });
 
 const RegisterPage = () => {
+  const router = useRouter();
+
   const handleRegister = (values) => {
-    console.log("Continue with email:", values.email);
+    try {
+      // Temporarily store email to be used on the create-password page
+      localStorage.setItem("pendingEmail", values.email);
+      router.push("/create-password");
+    } catch (e) {
+      console.error("Failed to proceed to password creation", e);
+    }
   };
 
   const handleGoogleRegister = () => {

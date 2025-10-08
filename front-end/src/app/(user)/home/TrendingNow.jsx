@@ -36,13 +36,13 @@ const TrendingNow = () => {
           <h1 className='font-raleway text-3xl text-glow-white font-semibold'>Check out the coolest <br />party vibes!</h1>
           <p className='font-source-sans text-white/90 text-sm w-4/5'>Book your next party with us and get personalized venue suggestions and exclusive packages!</p>
           <div className='flex items-center gap-2'>
-            <MainButton/>
+            <MainButton text={"Check it out"}/>
             <div className='bg-white/20 p-3 rounded-full '>
             
             <Heart color="#FFD700" fill="#FFD700"/>
             </div>
             <div className='bg-white/20 p-3 rounded-full '>
-            <Share color="#FFD700" fill="#FFD700" />
+              <Image src={"/svgs/Share.svg"} height={5} width={5} className='w-5 h-5'/>
             </div>
           </div>
         </div>

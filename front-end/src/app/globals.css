@@ -74,6 +74,10 @@ body {
   font-family: var(--font-source-sans-pro), Arial, Helvetica, sans-serif;
 }
 
+.font-mulish {
+  font-family: var(--font-mulish), sans-serif;
+}
+
 /* Utility to apply SF Pro Display wherever needed */
 .font-sfpro {
   font-family: var(--font-sfpro);
