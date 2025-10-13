@@ -1,8 +1,13 @@
+// app/layout.jsx
 import { Geist, Geist_Mono, Raleway, Source_Sans_3, Outfit, Mulish } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import QueryProvider from "../providers/QueryProvider";
+import Navbar from "./(user)/components/Navbar";
+import Footer from "./(user)/components/Footer";
 
+
+// Define fonts
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -16,17 +21,7 @@ const geistMono = Geist_Mono({
 const raleway = Raleway({
   variable: "--font-raleway",
   subsets: ["latin"],
-  weight: [
-    "100",
-    "200",
-    "300",
-    "400",
-    "500",
-    "600",
-    "700",
-    "800",
-    "900",
-  ],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 const sourceSansPro = Source_Sans_3({
@@ -41,7 +36,7 @@ const outfit = Outfit({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
-export const mulish = Mulish({
+const mulish = Mulish({
   subsets: ["latin"],
   variable: "--font-mulish",
   weight: ["300", "400", "500", "600", "700"],
@@ -71,7 +66,18 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} ${raleway.variable} ${sourceSansPro.variable} ${outfit.variable} ${mulish.variable} antialiased`}
       >
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <div className={`${sourceSansPro.variable} ${mulish.variable} font-sans`}>
+              <Navbar />
+              <div
+                className="bg-[url('/images/BgPattern.png')] bg-repeat bg-center min-h-screen"
+                style={{ backgroundSize: 'auto' }}
+              >
+                {children}
+              </div>
+              <Footer />
+            </div>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

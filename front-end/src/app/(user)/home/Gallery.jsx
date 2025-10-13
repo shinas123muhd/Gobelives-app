@@ -1,10 +1,15 @@
+"use client"
 import React from 'react'
 import Subtitle from '../components/Subtitle'
 import LocationCard from '../components/LocationCard'
 import MainButton from '../components/MainButton'
 import Image from 'next/image'
+import { useGetGallery } from '../api/hooks'
+import GallerySkeleton from '../components/GallerySkeleton'
 
 const Gallery = () => {
+  const {data, isLoading, isError} = useGetGallery();
+  
   return (
     <div className='p-14'>
         <div className='flex justify-between items-center'>
@@ -19,11 +24,24 @@ const Gallery = () => {
               </button>
         </div>
         </div>
-        <div className='grid grid-cols-4 gap-8 py-4'>
-            {Array.from({length:4}).map((_, index) =>(<div key={index} className='h-[320px] w-full'>
-                <Image src={"/images/Gallery1.jpg"} height={320} width={304} className='h-full w-full object-cover rounded-2xl'/>
-            </div>))}
+        {isLoading ? (
+    <GallerySkeleton count={4} />
+  ) : (
+    <div className='grid grid-cols-4 gap-8 py-4'>
+      {data?.map((item) => (
+        <div key={item.id} className='h-[320px] w-full'>
+          <Image
+            src={item.image.url}
+            alt={item.image.altText}
+            height={600}
+            width={600}
+            quality={100}
+            className='h-full w-full object-cover rounded-2xl'
+          />
         </div>
+      ))}
+    </div>
+  )}
         
     </div>
   )

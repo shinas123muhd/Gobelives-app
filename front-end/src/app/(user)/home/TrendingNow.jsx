@@ -42,7 +42,7 @@ const TrendingNow = () => {
             <Heart color="#FFD700" fill="#FFD700"/>
             </div>
             <div className='bg-white/20 p-3 rounded-full '>
-              <Image src={"/svgs/Share.svg"} height={5} width={5} className='w-5 h-5'/>
+              <Image src={"/svgs/Share.svg"} alt='sharesvg' height={5} width={5} className='w-5 h-5'/>
             </div>
           </div>
         </div>

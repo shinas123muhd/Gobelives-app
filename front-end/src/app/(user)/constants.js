@@ -1,7 +1,7 @@
 export const NAV_LINKS = [
     { 
       title: "Home",
-      path: "/home",
+      path: "/",
     },
     { 
       title: "Packages",

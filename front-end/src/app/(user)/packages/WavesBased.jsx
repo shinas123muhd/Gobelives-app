@@ -1,9 +1,16 @@
+"use client"
 import React from 'react'
 import LocationCard from '../components/LocationCard'
 import BannerComp from '../components/BannerComp'
 import Subtitle from '../components/Subtitle'
+import LocationCardSkeleton from '../components/LocationCardSkeleton'
+import { useGetPackages } from '../api/hooks'
 
 const WavesBased = () => {
+  
+  const { data: packages, isLoading, isError, error } = useGetPackages(1, 20, "createdAt", "desc", "68d5361196a9c34b778f3081");
+  console.log(packages?.packages)
+  const BeachPackages = packages?.packages || [];
   return (
     <div>
         <BannerComp image={"/images/WavesBased.png"} title={"CityBased"}/>
@@ -13,11 +20,19 @@ const WavesBased = () => {
         
         </div>
         <div className='grid grid-cols-4 gap-6 py-4'>
-          {Array.from({length:8}).map((_, index)=>(
-            <div key={index}>
-              <LocationCard/>
-            </div>
-          ))}
+         {isLoading
+            ? [...Array(4)].map((_, idx) => (
+                <LocationCardSkeleton key={idx} />
+              ))
+            : BeachPackages?.map((item) => (
+                <LocationCard
+                  key={item.id}
+                  image={item.coverImage}
+                  title={item.title}
+                  price={item.price.sellingPrice}
+                  features={item.featureHighlights}
+                />
+              ))}
         </div>
         
     </div>

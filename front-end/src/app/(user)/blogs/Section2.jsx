@@ -17,7 +17,7 @@ const Section2 = () => {
       </div>
 
       {/* Top-right image */}
-      <div className="relative w-full h-[720px]">
+      <div className="relative w-full h-[100vh]">
         <Image
           src="/images/Destination.png"
           alt="Destination"
@@ -27,7 +27,7 @@ const Section2 = () => {
       </div>
 
       {/* Bottom-left image */}
-      <div className="relative w-full h-[720px]">
+      <div className="relative w-full h-[100vh]">
         <Image
           src="/images/Cuisine.png"
           alt="Cuisine"

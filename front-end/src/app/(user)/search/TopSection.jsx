@@ -4,14 +4,14 @@ import FilterBar from '../components/FilterBar'
 
 const TopSection = () => {
   return (
-    <div className='w-full bg-black'>
-        <div className='relative  w-full px-14'>
+    
+        <div className='relative  w-full bg-white '>
             <PageTitle title={"Search Results"} path={"home/search"} pathname={"Home/Search"}/>
-            <div className='absolute -translate-x-1/2 left-1/2 -bottom-6'>
+            <div className='absolute -bottom-6 left-0 right-0 mx-auto w-fit'>
                 <FilterBar/>
             </div>
         </div>
-    </div>
+   
   )
 }
 

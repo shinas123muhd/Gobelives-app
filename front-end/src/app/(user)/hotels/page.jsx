@@ -8,8 +8,9 @@ const page = () => {
     <div>
         <PageTitle title={"Hotels"} path={"/hotels"} pathname={"Home/Hotels"}/>
         <HotelList/>
-        <TrendingNow/>
-
+        <div className='pb-10'>
+          <TrendingNow/>
+        </div>
     </div>
   )
 }

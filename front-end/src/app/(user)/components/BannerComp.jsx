@@ -8,7 +8,9 @@ const BannerComp = ({image, title, mainTitle}) => {
       <Image
         src={image}
         alt={title}
-        fill
+        height={1080}
+        width={1920}
+        quality={100}
         priority
 
         className="object-cover object-center"

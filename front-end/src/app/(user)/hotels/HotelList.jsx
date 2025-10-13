@@ -3,11 +3,19 @@ import React, { useState } from 'react';
 import { Heart, Share2, Star, MapPin, Users, Calendar, Filter, ChevronDown, Search } from 'lucide-react';
 import LocationCard from '../components/LocationCard';
 import HotelCard from './HotelCard';
+import BudgetFilter from '../search/filters/BudgetFilter';
+import PopularFilters from '../search/filters/PopularFilters';
+import ActivitiesFilter from '../search/filters/ActivitiesFilter';
+import RatingFilter from '../search/filters/RatingFilter';
+import { useGetHotels } from '../api/hooks';
 
 const HotelList = () => {
   const [selectedBudget, setSelectedBudget] = useState('');
   const [selectedRating, setSelectedRating] = useState('');
   const [sortBy, setSortBy] = useState('recommended');
+
+  const { data: hotels, isLoading, isError, error } = useGetHotels(1, 20, "createdAt", "desc", "");
+  console.log(hotels)
 
   // Sample product data
   const products = [
@@ -177,104 +185,40 @@ const HotelList = () => {
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex gap-6">
           {/* Sidebar Filters */}
-          <div className="w-80  text-white pr-5 rounded-lg h-fit">
-            {/* Search */}
-           
-
-           {/* Budget Filter */}
-<div className="mb-6 bg-[#0F1B17] py-2 rounded-xl">
-  <h3 className="text-lg font-semibold py-2 px-4 border-b border-white/24">
-    Your budget per day
-  </h3>
-  <div className="space-y-2 px-2 py-2">
-    {budgetOptions.map((budget, index) => (
-      <label
-        key={index}
-        className="flex items-center justify-between cursor-pointer hover:bg-gray-700 p-2 rounded"
-      >
-        <div className="flex items-center">
-          <input
-            type="checkbox" 
-            name="budget"
-            value={budget.range}
-            checked={selectedBudget === budget.range}
-            onChange={(e) => setSelectedBudget(e.target.value)}
-            className="mr-3 text-blue-500 focus:ring-blue-500 rounded-sm" 
-          />
-          <span className="text-sm">{budget.range}</span>
-        </div>
-        <span className="text-gray-400 text-sm">{budget.count}</span>
-      </label>
-    ))}
-  </div>
-</div>
-
+          <div className="w-80  text-white pr-5 rounded-lg h-full sticky top-8 self-start">
+            <BudgetFilter
+              options={budgetOptions}
+              selectedBudget={selectedBudget}
+              setSelectedBudget={setSelectedBudget}
+            />
 
             {/* Rating Filter */}
-            <div className="mb-6 bg-[#0F1B17] py-2 rounded-xl">
-              <h3 className="text-lg font-semibold mb-4 border-b px-4 py-1 border-white/20">Rating</h3>
-              <div className='px-4 py-1'>
-              <div className="text-sm text-gray-400 mb-3">Show only ratings more than</div>
-              <div className="grid grid-cols-5 gap-2">
-                {ratingOptions.map((rating) => (
-                  <button
-                    key={rating}
-                    onClick={() => setSelectedRating(rating)}
-                    className={`px-3 py-1 rounded border ${
-                      selectedRating === rating 
-                        ? 'bg-yellow-500 text-black border-yellow-500' 
-                        : 'border-gray-600 hover:border-gray-400'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1 ">
-                      <Star className={`w-3 h-3 ${selectedRating === rating ? 'fill-current' : ''}`} />
-                      <span className="text-xs">{rating}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              </div>
+            <RatingFilter
+                options={ratingOptions}
+                selectedRating={selectedRating}
+                setSelectedRating={setSelectedRating}
+              />
+              <PopularFilters filters={popularFilters} />
+              <ActivitiesFilter activities={activities} />
             </div>
 
-            {/* Popular Filters */}
-            <div className="mb-6 bg-[#0F1B17]  py-2 rounded-xl">
-              <h3 className="text-lg font-semibold py-2 px-4 border-b border-white/24">Popular Filters</h3>
-              <div className="space-y-2 px-2 py-2">
-                {popularFilters.map((filter, index) => (
-                  <label key={index} className="flex items-center justify-between cursor-pointer hover:bg-gray-700 p-2 rounded">
-                    <div className="flex items-center">
-                      <input type="checkbox" className="mr-3 text-blue-500 focus:ring-blue-500" />
-                      <span className="text-sm">{filter.name}</span>
-                    </div>
-                    <span className="text-gray-400 text-sm">{filter.count}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Activities */}
-            <div className="mb-6 bg-[#0F1B17]  py-2 rounded-xl">
-              <h3 className="text-lg font-semibold py-2 px-4 border-b border-white/24">Activities</h3>
-              <div className="space-y-2 px-2 py-2">
-                {activities.map((activity, index) => (
-                  <label key={index} className="flex items-center justify-between cursor-pointer hover:bg-gray-700 p-2 rounded">
-                    <div className="flex items-center">
-                      <input type="checkbox" className="mr-3 text-blue-500 focus:ring-blue-500" />
-                      <span className="text-sm">{activity.name}</span>
-                    </div>
-                    <span className="text-gray-400 text-sm">{activity.count}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
 
           {/* Product Grid */}
-          <div className="flex-1">
+          <div
+            className="flex-1 h-full overflow-y-auto scrollbar-hide"
+            style={{ minHeight: 0 }}
+          >
             <div className="grid grid-cols-1  ">
-              {Array.from({length:6}).map((_, index) => (
-                <div key={index} className='pb-3 '>
-                  <HotelCard/>
+              {hotels?.hotels.map((item) => (
+                <div key={item.id} className='pb-3 '>
+                  <HotelCard
+                    name={item.name} 
+                    image={item.primaryImage.url}
+                    altText={item.primaryImage.alt}
+                    averageRating={item.averageRating}
+                    features = {item.features}
+                    amenities={item.amenities}
+                  />
                 </div>
               ))}
             </div>

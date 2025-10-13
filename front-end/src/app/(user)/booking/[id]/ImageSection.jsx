@@ -5,42 +5,49 @@ import React, { useState } from "react";
 const ImageSection = ({ images = [] }) => {
 
   // active image state, default to first image
-  const [activeImage, setActiveImage] = useState(images[0] || null);
+  const [activeImage, setActiveImage] = useState(images[0]?.url || null);
 
   return (
     <div>
       <div>
         {/* Main active image */}
         {activeImage && (
+          <div className="relative w-full h-[420px] rounded-t-2xl overflow-hidden">
           <Image
             src={activeImage}
-            height={420}
-            width={720}
             alt="Main image"
-            className="h-[420px] w-full object-cover rounded-t-3xl"
+            fill
+            priority
+            className="object-cover"
+
+            quality={100} // <-- make sure image quality is max
           />
+        </div>
         )}
 
         {/* Thumbnails */}
-        <div className="grid grid-cols-6 gap-2 mt-3 ">
-        {images.map((img, index) => (
+        <div className="flex justify-center mt-4">
+        <div className="flex gap-3 overflow-x-auto scrollbar-hide px-2">
+          {images?.map((img, index) => (
             <button
               key={index}
-              onClick={() => setActiveImage(img)}
-              className={` roundedt-t-2xl overflow-hidden ${
-                activeImage === img ? "border-blue-500" : "border-transparent"
+              onClick={() => setActiveImage(img.url)}
+              className={`flex-shrink-0 rounded-t-2xl overflow-hidden border-2 ${
+                activeImage === img.url ? "border-blue-500" : "border-transparent"
               }`}
             >
               <Image
-                src={img}
-                height={100}
-                width={120}
+                src={img.url}
                 alt={`Thumbnail ${index + 1}`}
-                className="h-[100px] w-[120px] object-cover"
+                height={100}
+                width={140}
+                className="object-cover h-[80px] w-[120px] rounded-t-2xl"
+                quality={90}
               />
             </button>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

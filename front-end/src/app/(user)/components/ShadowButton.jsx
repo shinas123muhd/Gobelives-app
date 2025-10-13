@@ -10,7 +10,7 @@ const ShadowButton = ({
 
   }) => {
     return (
-        <div className={`relative py-7 w-${width}`} style={{ backgroundColor: shadowBg }}>
+        <div className={`relative py-6 w-${width}`} style={{ backgroundColor: shadowBg }}>
         <div
           className={`absolute bottom-2 left-2 w-full h-full flex justify-center items-center gap-2 border-2`}
           style={{
