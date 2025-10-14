@@ -3,6 +3,8 @@
 import Slider from "react-slick";
 import LocationCard from "../../components/LocationCard";
 import { LiaAngleLeftSolid, LiaAngleRightSolid  } from "react-icons/lia";
+import { useGetPackages } from "../../api/hooks";
+import LocationCardSkeleton from "../../components/LocationCardSkeleton";
 
 
 
@@ -26,6 +28,7 @@ const PrevArrow = ({ onClick }) => (
 );
 
 const NearBy = () => {
+   const { data: packages, isLoading, isError, error } = useGetPackages(1, 20, "createdAt", "desc");
     const settings = {
         dots: false,
         infinite: false,
@@ -53,11 +56,22 @@ const NearBy = () => {
             </div>
     </div>
     <Slider {...settings}>
-        {Array.from({length:7}).map((_, index) => (
-          <div key={index} className="px-2">
-            <LocationCard />
-          </div>
-        ))}
+        {isLoading ? [...Array(4)].map((_, idx) => (
+              <div key={idx}  className="px-2">
+                <LocationCardSkeleton  />
+              </div>
+            ))
+          : packages?.packages.map((item) => (
+              <div key={item.id} className="px-2">
+                <LocationCard
+                key={item.id}
+                image={item.coverImage}
+                title={item.title}
+                price={item.price.sellingPrice}
+                features={item.featureHighlights}
+              />
+              </div>
+            ))}
       </Slider>
     </div>
   )

@@ -24,7 +24,7 @@ const WhyChooseUs = () => {
       ];
     
   return (
-    <div className="h-[calc(100vh-50px)] w-full relative">
+    <div className="h-screen w-full relative">
       {/* Background Image */}
       <Image
 
@@ -70,7 +70,7 @@ const WhyChooseUs = () => {
               <MainButton text={"Organize a group trip"}  />
               <div>
               
-              <button className={`relative cursor-pointer bg-[#0F1B17] whitespace-nowrap text-[black]  font-semibold py-2 px-6 rounded-lg transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg overflow-hidden`} 
+              <button className={`relative cursor-pointer bg-[#0F1B17] whitespace-nowrap text-[black]  font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg overflow-hidden`} 
             style={{ clipPath: "polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%)" }}>
               <h2 className='text-[#FFD700]'>Chat with Us</h2>
               <div> 

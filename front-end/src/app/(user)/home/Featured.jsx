@@ -14,14 +14,14 @@ const Featured = () => {
           id: 2,
           title: "Mountain",
           description: "Venture into untamed peaks of lifts, breathtaking views and fresh mountain air.",
-          image: "/images/Beaches.png",
+          image: "/images/Mountains.png",
           gradient: "from-orange-400/30 to-pink-500/40"
         },
         {
           id: 3,
           title: "Cities",
           description: "Explore Rivermoon's historic centers filled with cafés, vibrant culture, and urban adventures.",
-          image: "/images/Beaches.png",
+          image: "/images/Cities.png",
           gradient: "from-blue-500/20 to-purple-600/30"
         }
       ];

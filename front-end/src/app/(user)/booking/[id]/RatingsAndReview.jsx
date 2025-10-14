@@ -43,7 +43,7 @@ const RatingsAndReview = () => {
         helpful: true
       },
       {
-        id: 2,
+        id: 5,
         name: 'Vinnie McCoy',
         avatar: null,
         date: '6 months ago',

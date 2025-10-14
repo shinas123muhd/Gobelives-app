@@ -6,7 +6,8 @@ const ShadowButton = ({
     borderColor ,
     bgColor ,
     shadowBg,
-    width
+    width,
+    path
 
   }) => {
     return (

@@ -37,7 +37,7 @@ const page = () => {
                   capacity = {packages?.capacity}
                   meetingPoint = {packages?.meetingPoint}
                 />
-                <MapLocation/>
+                <MapLocation location = {packages?.location.link}/>
             </div>
             <div className='col-span-2'>
                 <BookingCard/>

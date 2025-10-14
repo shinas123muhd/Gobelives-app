@@ -1,6 +1,8 @@
 "use client"
 import React, { useState } from 'react';
 import { Calendar, ShoppingCart, Share2, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
+import { PiShareFat } from 'react-icons/pi';
 
 const BookingCard = () => {
   const [fromDate, setFromDate] = useState('10/12/2025');
@@ -20,7 +22,7 @@ const BookingCard = () => {
   ];
 
   return (
-    <div className="  flex items-center justify-center">
+    <div className="  flex items-center justify-center font-source-sans">
       <div className="w-full max-w-sm">
         {/* Main Card */}
         <div className="bg-[#0D0D0D] rounded-t-3xl p-6 shadow-2xl border border-gray-700/50">
@@ -90,26 +92,30 @@ const BookingCard = () => {
           </div>
 
           {/* Subtotal */}
-          <div className="text-center mb-4">
+          <div className="text-center mb-4 font-raleway">
             <p className="text-gray-400 text-sm mb-1">Subtotal</p>
             <p className="text-white text-4xl font-bold">$499.99</p>
           </div>
 
           {/* Book Now Button */}
-          <button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 mb-3 shadow-lg shadow-yellow-500/20">
-            Book Now
-            <ShoppingCart className="w-5 h-5" />
-          </button>
+          <div className='flex justify-center pb-4'>
+            <button className="relative w-full flex justify-center bg-[#FFDD1A] whitespace-nowrap hover:bg-yellow-500 text-black font-semibold py-2 px-10 rounded-2xl ring-2 ring-[#362B0040] ring-inset transition-colors duration-200  items-center gap-2 overflow-hidden">
+                <h2>Book Now</h2>
+                <div>
+                  <Image src={"/svgs/ButtonStar.svg"} alt='Star' width={30} height={30} />
+                </div>
+              </button>
+          </div>
 
           {/* Add To Yoke Button */}
           <button className="w-full bg-transparent border-2 border-gray-700 hover:border-gray-600 text-white font-medium py-4 rounded-xl transition-colors flex items-center justify-center gap-2 mb-4">
-            <Share2 className="w-5 h-5" />
-            Add To Yoke
+            <PiShareFat  className="w-5 h-5" />
+            Add To Vote
           </button>
 
           {/* Refund Policy Link */}
           <div className="text-center">
-            <button className="text-yellow-400 hover:text-yellow-300 text-sm font-medium transition-colors">
+            <button className="text-[#FFD700] hover:text-yellow-300 font-raleway font-bold  transition-colors">
               View Refund Policy
             </button>
           </div>
