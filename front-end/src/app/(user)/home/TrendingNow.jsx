@@ -6,7 +6,7 @@ import { Heart, MapPin, Share } from 'lucide-react'
 
 const TrendingNow = () => {
   return (
-    <div className="h-[calc(100vh-50px)] w-full relative overflow-hidden">
+    <div className="h-[500px] md:h-[650px] lg:h-[600px]  w-full relative overflow-hidden">
       {/* Background Image */}
       <Image
         src="/images/TrendingNow.jpg"
@@ -28,14 +28,14 @@ const TrendingNow = () => {
   />
 </div>
 <div className='absolute h-full right-10 translate-y-1/3 '>
-    <div className='flex flex-col gap-2'>
+    <div className='flex flex-col gap-5'>
         <div className='py-1 px-3 bg-[#162721] w-fit rounded-3xl'>
         <h2 className='font-source-sans text-[#FFFFFF] text-sm'>Trending Now</h2>
           </div>
           
           <h1 className='font-raleway text-3xl text-glow-white font-semibold'>Check out the coolest <br />party vibes!</h1>
           <p className='font-source-sans text-white/90 text-sm w-4/5'>Book your next party with us and get personalized venue suggestions and exclusive packages!</p>
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-3'>
             <MainButton text={"Check it out"}/>
             <div className='bg-white/20 p-3 rounded-full '>
             

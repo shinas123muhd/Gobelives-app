@@ -1,10 +1,13 @@
 import { Car, Clock, Star, Users } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 
-const LocationCard = ({image, title, alt, includes, reviews, price, features = [] }) => {
+const LocationCard = ({id, image, title, alt, includes, reviews, price, features = [] }) => {
+  console.log(id)
 
   return (
+    <Link href={`/booking/${id}`} className="block">
     <div className='bg-[#0F1B17] p-4 rounded-t-2xl flex flex-col gap-3'>
         <div className='w-full h-[180px] overflow-hidden rounded-t-2xl'>
             <Image src={image} alt='Location' height={180} width={278} className='h-full w-full object-cover rounded-t-2xl'/>
@@ -40,10 +43,8 @@ const LocationCard = ({image, title, alt, includes, reviews, price, features = [
             <span className='text-gray-300 text-sm'>Per Person</span>
            </div>
           </div>
-
-
-
     </div>
+    </Link>
   )
 }
 

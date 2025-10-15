@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Formik, Field, ErrorMessage } from "formik";
+import { Formik, Field, ErrorMessage, Form } from "formik";
 import * as Yup from "yup";
 import Image from "next/image";
 
@@ -18,16 +18,16 @@ const bookingSchema = Yup.object({
 
 export default function BookingForm({ onSubmit }) {
   return (
-    <div className=" rounded-2xl  shadow-xl">
-      <div className="flex items-center gap-3 bg-[#4D685F]  rounded-t-2xl px-10 py-3">
+    <div className="rounded-2xl shadow-xl">
+      <div className="flex items-center gap-3 bg-[#4D685F] rounded-t-2xl px-10 py-3">
         <div className="bg-teal-700 rounded-lg p-2">
           <div className="w-5 h-5 text-white flex items-center justify-center text-sm font-bold">
             1
           </div>
         </div>
         <div className="flex items-center gap-3 text-[#DFDFDF]">
-          <h2 className=" font-semibold">Room 1</h2>
-          <p className=" text-sm">
+          <h2 className="font-semibold">Room 1</h2>
+          <p className="text-sm">
             2 adults, 1 double bed and 1 twin bed, Non smoking
           </p>
         </div>
@@ -43,44 +43,44 @@ export default function BookingForm({ onSubmit }) {
           receiveNotification: false,
         }}
         validationSchema={bookingSchema}
-        onSubmit={onSubmit}
+        onSubmit={(values) => {
+          onSubmit(values); // pass form data to parent
+        }}
       >
-        {({ handleSubmit }) => (
-          <div className="bg-black bg-opacity-50 rounded-xl p-6 space-y-4">
-            {/* First Name */}
+        {() => (
+          <Form className="bg-black bg-opacity-50 rounded-xl p-6 space-y-4">
+            {/* First & Second Name */}
             <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-gray-300 text-sm mb-2">
-                First name
-              </label>
-              <Field
-                name="firstName"
-                placeholder="John"
-                className="w-full bg-white/24 text-white border border-white/32  rounded-lg px-4 py-2 focus:outline-none"
-              />
-              <ErrorMessage
-                name="firstName"
-                component="div"
-                className="text-red-400 text-xs mt-1"
-              />
-            </div>
-
-            {/* Second Name */}
-            <div>
-              <label className="block text-gray-300 text-sm mb-2">
-                Second Name
-              </label>
-              <Field
-                name="secondName"
-                placeholder="Smith"
-                className="w-full bg-white/24 text-white border border-white/32  rounded-lg px-4 py-2 focus:outline-none"
-              />
-              <ErrorMessage
-                name="secondName"
-                component="div"
-                className="text-red-400 text-xs mt-1"
-              />
-            </div>
+              <div>
+                <label className="block text-gray-300 text-sm mb-2">
+                  First name
+                </label>
+                <Field
+                  name="firstName"
+                  placeholder="John"
+                  className="w-full bg-white/24 text-white border border-white/32 rounded-lg px-4 py-2 focus:outline-none"
+                />
+                <ErrorMessage
+                  name="firstName"
+                  component="div"
+                  className="text-red-400 text-xs mt-1"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 text-sm mb-2">
+                  Last name
+                </label>
+                <Field
+                  name="secondName"
+                  placeholder="Smith"
+                  className="w-full bg-white/24 text-white border border-white/32 rounded-lg px-4 py-2 focus:outline-none"
+                />
+                <ErrorMessage
+                  name="secondName"
+                  component="div"
+                  className="text-red-400 text-xs mt-1"
+                />
+              </div>
             </div>
 
             {/* Mobile Number */}
@@ -92,7 +92,7 @@ export default function BookingForm({ onSubmit }) {
                 <Field
                   as="select"
                   name="countryCode"
-                  className=" bg-white/24 text-white border border-white/32  rounded-lg px-3 py-2 focus:outline-none"
+                  className="bg-white/24 text-white border border-white/32 rounded-lg px-3 py-2 focus:outline-none"
                 >
                   <option value="+61">🇦🇺 +61</option>
                   <option value="+1">🇺🇸 +1</option>
@@ -102,7 +102,7 @@ export default function BookingForm({ onSubmit }) {
                 <Field
                   name="mobileNumber"
                   placeholder="1032364519"
-                  className="w-full bg-white/24 text-white border border-white/32  rounded-lg px-4 py-2 focus:outline-none "
+                  className="w-full bg-white/24 text-white border border-white/32 rounded-lg px-4 py-2 focus:outline-none"
                 />
               </div>
               <ErrorMessage
@@ -113,72 +113,47 @@ export default function BookingForm({ onSubmit }) {
             </div>
 
             {/* Checkboxes */}
-            <div className="space-y-2 flex justify-between ">
-  <div className="flex flex-col gap-2">
-  <label className="flex items-center gap-2 cursor-pointer relative">
-      <Field
-        type="checkbox"
-        name="saveDetails"
-        as="input"
-        className="peer appearance-none w-4 h-4 rounded-md bg-gray-400 border border-gray-600 checked:bg-[#FFDD1A] checked:border-[#FFDD1A] cursor-pointer"
-      />
-      <svg 
-        className="absolute left-0 w-4 h-4 pointer-events-none hidden peer-checked:block"
-        viewBox="0 0 20 20"
-        fill="none"
-      >
-        <path 
-          d="M7 10L9 12L13 8" 
-          stroke="black" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span className="text-gray-300 text-sm">
-        Save Details
-      </span>
-    </label>
-    
-    <label className="flex items-center gap-2 cursor-pointer relative">
-      <Field
-        type="checkbox"
-        name="receiveNotification"
-        as="input"
-        className="peer appearance-none w-4 h-4 rounded-md bg-gray-400 border border-gray-600 checked:bg-[#FFDD1A] checked:border-[#FFDD1A] cursor-pointer"
-      />
-      <svg 
-        className="absolute left-0 w-4 h-4 pointer-events-none hidden peer-checked:block"
-        viewBox="0 0 20 20"
-        fill="none"
-      >
-        <path 
-          d="M7 10L9 12L13 8" 
-          stroke="black" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span className="text-gray-300 text-sm">
-        Receive Notification about this trip
-      </span>
-    </label>
-  </div>
-  
-  <div className="pt-5">
-    <button className="relative bg-[#FFDD1A] whitespace-nowrap hover:bg-yellow-500 text-black font-semibold py-1 px-10 rounded-2xl ring-2 ring-[#362B0040] ring-inset transition-colors duration-200 flex items-center gap-2 overflow-hidden">
-      Next
-      <div>
-        <Image src={"/svgs/ButtonStar.svg"} alt='Star' width={30} height={30} />
-      </div>
-    </button>
-  </div>
-</div>
+            <div className="space-y-2 flex justify-between">
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Field
+                    type="checkbox"
+                    name="saveDetails"
+                    className="w-4 h-4 rounded-md bg-gray-400 border border-gray-600 checked:bg-[#FFDD1A] checked:border-[#FFDD1A] cursor-pointer"
+                  />
+                  <span className="text-gray-300 text-sm">Save Details</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Field
+                    type="checkbox"
+                    name="receiveNotification"
+                    className="w-4 h-4 rounded-md bg-gray-400 border border-gray-600 checked:bg-[#FFDD1A] checked:border-[#FFDD1A] cursor-pointer"
+                  />
+                  <span className="text-gray-300 text-sm">
+                    Receive Notification about this trip
+                  </span>
+                </label>
+              </div>
 
-            {/* Submit Button */}
-            
-          </div>
+              {/* Submit Button */}
+              <div className="pt-5">
+                <button
+                  type="submit"
+                  className="relative bg-[#FFDD1A] whitespace-nowrap hover:bg-yellow-500 text-black font-semibold py-1 px-10 rounded-2xl ring-2 ring-[#362B0040] ring-inset transition-colors duration-200 flex items-center gap-2 overflow-hidden"
+                >
+                  Next
+                  <div>
+                    <Image
+                      src={"/svgs/ButtonStar.svg"}
+                      alt="Star"
+                      width={30}
+                      height={30}
+                    />
+                  </div>
+                </button>
+              </div>
+            </div>
+          </Form>
         )}
       </Formik>
     </div>

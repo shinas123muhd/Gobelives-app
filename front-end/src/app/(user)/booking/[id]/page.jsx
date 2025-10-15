@@ -40,7 +40,7 @@ const page = () => {
                 <MapLocation location = {packages?.location.link}/>
             </div>
             <div className='col-span-2'>
-                <BookingCard/>
+                <BookingCard price={packages?.price.sellingPrice}/>
             </div>
         </div>
         <NearBy/>

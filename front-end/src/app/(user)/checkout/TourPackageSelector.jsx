@@ -1,8 +1,9 @@
 "use client"
+import Image from 'next/image';
 import React, { useState } from 'react';
 
-export default function TourPackageSelector() {
-  const [selectedTime, setSelectedTime] = useState('7am');
+export default function TourPackageSelector({selectedTime, setTime}) {
+  
   const [selectedPackage, setSelectedPackage] = useState('with-hotels');
 
   const times = ['7am', '8am', '9am', '10am', '11am'];
@@ -49,7 +50,7 @@ export default function TourPackageSelector() {
                 </div>
 
                 {/* Pickup Time Selector */}
-                <div className="rounded-lg py-3 flex justify-between ">
+                <div className="rounded-lg py-3 flex justify-between items-center">
                   <div className="text-gray-400 text-xs flex flex-col gap-4">
                 <h1 className="text-white text-sm">Select Pickup Time</h1>
                   <div className="flex gap-2 flex-wrap">
@@ -59,9 +60,9 @@ export default function TourPackageSelector() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation(); // prevent triggering package select
-                          setSelectedTime(time);
+                          setTime(time);
                         }}
-                        className={`px-4 py-2 rounded-sm text-sm font-medium border border-[#FFE96C] transition-all ${
+                        className={`px-4 py-2 rounded-sm text-lg font-medium border border-[#FFE96C] transition-all ${
                           selectedTime === time
                             ? 'bg-[#FFEB7A] text-gray-900'
                             : ' text-gray-300 hover:bg-[#FFEB7A]'
@@ -71,15 +72,9 @@ export default function TourPackageSelector() {
                       </button>
                     ))}
                   </div>
-                  <div className="flex items-center px-5 py-2 bg-[#FFD70014] gap-2 w-fit text-white rounded-sm mb-4">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span className=''>Cancel for free up to 48 hours before your trip.</span>
+                  <div className="flex items-center px-5 py-3 bg-[#FFD70014] gap-2 w-fit text-white rounded-sm mb-4">
+                  <Image src={"/svgs/Share.svg"} alt="Verified" width={16} height={16} className='h-4 w-4'/>
+                  <span className='text-base'>Cancel for free up to 48 hours before your trip.</span>
                 </div>
                 </div>
                 
@@ -89,7 +84,7 @@ export default function TourPackageSelector() {
                       <p className='font-light'>Include one room</p>
                       <div className='py-5 flex gap-4 items-center'>
                         <span className='line-through text-[#EE6E6E] '>$2880</span>
-                        <span className='line-through text-white font-bold text-xl'>$2500</span>
+                        <span className=' text-white font-bold text-xl'>$2500</span>
                       </div>
                 </div>
 
@@ -127,7 +122,7 @@ export default function TourPackageSelector() {
               </div>
               <div className=' flex gap-4 items-center'>
                         <span className='line-through text-[#EE6E6E] '>$2880</span>
-                        <span className='line-through text-white font-bold text-xl'>$2500</span>
+                        <span className=' text-white font-bold text-xl'>$2500</span>
                       </div>
             </div>
           </div>

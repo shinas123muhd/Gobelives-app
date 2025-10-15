@@ -27,6 +27,7 @@ const WavesBased = () => {
             : BeachPackages?.map((item) => (
                 <LocationCard
                   key={item.id}
+                  id={item.id}
                   image={item.coverImage}
                   title={item.title}
                   price={item.price.sellingPrice}

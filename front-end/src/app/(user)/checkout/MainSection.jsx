@@ -1,4 +1,6 @@
-import React from 'react'
+"use client"
+
+import React, { useState } from 'react'
 import BookingForm from './BookingForm'
 import PaymentForm from './PaymentForm'
 import { TourDetailsCard } from './TourDetailsCard'
@@ -7,12 +9,20 @@ import { ShareExpensesCard } from './ShareExpenseCard'
 import BookingInformationModal from './BookingInformationModal'
 
 const MainSection = () => {
+    const [userData, setUserData] = useState(null);
+    const [confirm, setConfirm] = useState(false)
+    console.log(userData)
+
+    const handleSubmit = (formValues) => {
+        setUserData(formValues);
+        setConfirm(true);
+    };
   return (
     <div>
         <div className='grid grid-cols-3 gap-5'>
             <div className='col-span-2'>
-                <BookingForm/>
-                <PaymentForm/>
+                <BookingForm onSubmit={handleSubmit}/>
+                <BookingInformationModal confirm={confirm}/>
             </div>
             <div className='col-span-1'>
             <TourDetailsCard 
@@ -27,17 +37,13 @@ const MainSection = () => {
                 pricePerNight={120.32}
                 />
 
-                <ShareExpensesCard 
+                {/* <ShareExpensesCard 
                 pricePerPerson={120.32}
                 taxAndFees={9.68}
-                />
+                /> */}
             </div>
         </div>
-        <div className='grid grid-cols-3'>
-            <div className='col-span-2'>
-                <BookingInformationModal/>
-            </div>
-        </div>
+        
     </div>
   )
 }

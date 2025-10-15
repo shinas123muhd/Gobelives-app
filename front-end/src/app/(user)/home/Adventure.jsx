@@ -18,6 +18,7 @@ const Adventure = () => {
             : packages?.packages.slice(0,4).map((item) => (
                 <LocationCard
                   key={item.id}
+                  id={item.id}
                   image={item.coverImage}
                   title={item.title}
                   price={item.price.sellingPrice}

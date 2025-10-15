@@ -1,9 +1,10 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 
-export default function BookingInformationModal({ onClose, onBookNow }) {
+export default function BookingInformationModal({ onClose, onBookNow, confirm }) {
+  console.log( confirm );
   return (
-    <div className="  flex items-center justify-center">
+    <div className="  flex items-center justify-center py-5">
       <div className=" w-full bg-gray-800 bg-opacity-90 rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="bg-[#322F35] bg-opacity-60 px-6 py-4">
@@ -63,7 +64,7 @@ export default function BookingInformationModal({ onClose, onBookNow }) {
           <div className="flex justify-end pt-4">
             <button 
               onClick={onBookNow}
-              className="bg-[#FFD700]/50  hover:from-yellow-600 hover:to-yellow-500 text-black font-semibold px-14  py-3 rounded-full transition-all duration-200 flex items-center gap-2 shadow-lg"
+              className={`${confirm ? "bg-[#FFD700] " : "bg-[#FFD700]/50 cursor-not-allowed"}  hover:from-yellow-600 hover:to-yellow-500 text-black font-semibold px-14  py-3 rounded-full transition-all duration-200 flex items-center gap-2 shadow-lg`}
             >
               Book Now
               <Sparkles className="w-5 h-5" />

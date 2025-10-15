@@ -24,7 +24,7 @@ const WhyChooseUs = () => {
       ];
     
   return (
-    <div className="h-screen w-full relative">
+    <div className="h-[720px] w-full relative">
       {/* Background Image */}
       <Image
 
@@ -33,7 +33,7 @@ const WhyChooseUs = () => {
         fill
         priority
 
-        className="object-cover"
+        className="object-cover  rounded-2xl"
       />
       <div className='absolute inset-0 bg-gradient-to-r from-white to-white/0'></div>
       {/* Bottom Fill Image */}
@@ -46,10 +46,10 @@ const WhyChooseUs = () => {
     className="w-full h-auto"
   />
 </div>
-<div className='absolute inset-0 flex  items-start p-10 '>
-    <div className='w-1/2 text-black flex flex-col gap-3'>
-    <h1 className='text-black text-3xl font-bold font-raleway'>Why Choose Us</h1>
-    <p className='w-2/3'>Enjoy different experiences in every place you visit and discover new and affordable adventures of course.</p>
+<div className='absolute inset-0 flex  p-14 '>
+    <div className='w-1/2 text-black flex flex-col justify-center gap-5'>
+    <h1 className='text-black text-4xl font-bold font-raleway'>Why Choose Us</h1>
+    <p className='w-2/3 text-lg'>Enjoy different experiences in every place you visit and discover new and affordable adventures of course.</p>
     <div className=" flex flex-col ">
             {features.map((feature, index) => (
               <div key={index} className="flex items-center space-x-4 hover:bg-white showdow-xl p-3 group rounded-2xl transform transition-all duration-200 ease-in-out">

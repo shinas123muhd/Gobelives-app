@@ -65,6 +65,7 @@ const NearBy = () => {
               <div key={item.id} className="px-2">
                 <LocationCard
                 key={item.id}
+                id={item.id}
                 image={item.coverImage}
                 title={item.title}
                 price={item.price.sellingPrice}

@@ -57,8 +57,8 @@ const Footer = () => {
                 <div>
                     <h2 className='text-white/80 font-bold'>Payment methods possible</h2>
                     <div className='z-10'>
-                        <Image src={"/images/payments1.png"} alt='PaymentMethods' height={50} width={300} className='mt-2'/>
-                        <Image src={"/images/payments2.png"} alt='PaymentMethods' height={50} width={300} className='mt-2'/>
+                        <Image src={"/images/payments1.png"} alt='PaymentMethods' height={500} width={800} className='mt-2 h-8 w-full'/>
+                        <Image src={"/images/payments2.png"} alt='PaymentMethods' height={500} width={800} className='mt-2 h-8 w-full'/>
                     </div>
                 </div>
                 <div>
