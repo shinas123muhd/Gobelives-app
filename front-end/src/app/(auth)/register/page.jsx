@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const RegisterSchema = Yup.object().shape({
   email: Yup.string()
@@ -109,12 +110,12 @@ const RegisterPage = () => {
               {/* Already have account */}
               <p className="text-center text-sm text-[#B3BEBA] mt-6">
                 Already have an account?{" "}
-                <button
-                  type="button"
+                <Link href={"/login"}
+                  
                   className="text-[#FFD700] hover:text-yellow-300 font-medium transition-colors"
                 >
                   Sign in
-                </button>
+                </Link>
               </p>
             </Form>
           )}

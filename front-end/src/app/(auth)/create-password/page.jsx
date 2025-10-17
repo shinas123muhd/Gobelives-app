@@ -52,7 +52,8 @@ const CreatePasswordPage = () => {
         localStorage.setItem("authToken", res.data.token);
       }
       localStorage.removeItem("pendingEmail");
-      router.replace("/");
+      router.replace("/login");
+      console.log("success")
     } catch (error) {
       setStatus(error?.message || error?.error || "Registration failed");
     } finally {
@@ -65,7 +66,7 @@ const CreatePasswordPage = () => {
       <div className="max-w-3xl w-full rounded-2xl p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold text-[#C4CDCA] mb-2">Create password</h1>
+          <h1 className="text-2xl font-semibold text-[#C4CDCA] mb-2">Enter your Details</h1>
           <p className="text-sm text-[#B3BEBA]">
           Use a minimum of 10 characters, including letters, lowercase letters, and numbers.
           </p>
@@ -181,9 +182,11 @@ const CreatePasswordPage = () => {
                   I agree to the <a href="#" className="text-[#FFD700] hover:text-yellow-300">Terms and Conditions</a> and <a href="#" className="text-[#FFD700] hover:text-yellow-300">Privacy Statement</a>.
                 </span>
               </div>
-              <Button disabled={isSubmitting} type="submit" className="w-full font-semibold" variant="primary" size="md">
+              <div className="flex justify-center">
+                <Button disabled={isSubmitting} type="submit" className="w-1/2 font-semibold" variant="primary" size="md">
                 Create account
               </Button>
+              </div>
 
               {/* Terms */}
               <p className="text-center text-sm text[#B3BEBA]">

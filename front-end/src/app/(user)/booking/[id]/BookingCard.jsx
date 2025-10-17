@@ -7,13 +7,14 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useParams } from 'next/navigation';
 
 const BookingCard = ({price}) => {
-
+  const { id } = useParams();
   const router = useRouter();
 
-  const [fromDate, setFromDate] = useState(new Date());
-  const [toDate, setToDate] = useState(new Date());
+  const [fromDate, setFromDate] = useState(new Date().toISOString());
+  const [toDate, setToDate] = useState(new Date(new Date().setDate(new Date().getDate() + 1)).toISOString());
   const [guests, setGuests] = useState("2 adults");
   const [isGuestOpen, setIsGuestOpen] = useState(false);
 
@@ -30,8 +31,10 @@ const BookingCard = ({price}) => {
 
   const handleBooking = () => {
   const params = new URLSearchParams({
-    fromDate: fromDate.toISOString(),
-    toDate: toDate.toISOString(),
+    id: id,
+    bookingType:"package",
+    fromDate: fromDate,
+    toDate: toDate,
     guests,
     price: price.toString(),
   });

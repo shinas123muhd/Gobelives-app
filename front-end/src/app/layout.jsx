@@ -1,46 +1,15 @@
 // app/layout.jsx
-import { Geist, Geist_Mono, Raleway, Source_Sans_3, Outfit, Mulish } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import QueryProvider from "../providers/QueryProvider";
-import Navbar from "./(user)/components/Navbar";
-import Footer from "./(user)/components/Footer";
+import { Geist, Geist_Mono, Raleway, Source_Sans_3, Outfit, Mulish } from "next/font/google";
 
-
-// Define fonts
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const raleway = Raleway({
-  variable: "--font-raleway",
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
-
-const sourceSansPro = Source_Sans_3({
-  variable: "--font-source-sans-pro",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
-
-const mulish = Mulish({
-  subsets: ["latin"],
-  variable: "--font-mulish",
-  weight: ["300", "400", "500", "600", "700"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const raleway = Raleway({ variable: "--font-raleway", subsets: ["latin"], weight: ["100","200","300","400","500","600","700","800","900"] });
+const sourceSansPro = Source_Sans_3({ variable: "--font-source-sans-pro", subsets: ["latin"], weight: ["300","400","500","600","700"] });
+const outfit = Outfit({ variable: "--font-outfit", subsets: ["latin"], weight: ["100","200","300","400","500","600","700","800","900"] });
+const mulish = Mulish({ variable: "--font-mulish", subsets: ["latin"], weight: ["300","400","500","600","700"] });
 
 export const metadata = {
   title: "Create Next App",
@@ -50,34 +19,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="true"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${raleway.variable} ${sourceSansPro.variable} ${outfit.variable} ${mulish.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} ${raleway.variable} ${sourceSansPro.variable} ${outfit.variable} ${mulish.variable} antialiased`}>
         <QueryProvider>
-          <AuthProvider>
-            <div className={`${sourceSansPro.variable} ${mulish.variable} font-sans`}>
-              <Navbar />
-              <div
-                className="bg-[url('/images/BgPattern.png')] bg-repeat bg-center min-h-screen"
-                style={{ backgroundSize: 'auto' }}
-              >
-                {children}
-              </div>
-              <Footer />
-            </div>
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
       </body>
     </html>

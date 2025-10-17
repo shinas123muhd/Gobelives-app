@@ -4,9 +4,6 @@ import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import MainButton from './MainButton';
 
-// Card data
-
-
 const FeatureCard = ({ card, index }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -21,7 +18,7 @@ const FeatureCard = ({ card, index }) => {
         delay: index * 0.2,
         ease: "easeOut"
       }}
-      className="relative h-[468px] rounded-2xl overflow-hidden group "
+      className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[468px] rounded-2xl overflow-hidden group"
     >
       {/* Background Image */}
       <div 
@@ -33,10 +30,10 @@ const FeatureCard = ({ card, index }) => {
       <div className={`absolute inset-0 bg-black/30`} />
       
       {/* Content */}
-      <div className="relative h-full  flex items-end ">
-        <div className='flex flex-col h-1/2  gap-5 bg-[#7A95973D] p-6 justify-end items-center text-white text-center '>
+      <div className="relative h-full flex items-end">
+        <div className='flex flex-col h-auto sm:h-1/2 gap-3 sm:gap-4 lg:gap-5 bg-[#7A95973D] p-4 sm:p-5 lg:p-6 justify-end items-center text-white text-center w-full'>
           <motion.h3 
-            className="text-2xl font-bold mb-3 "
+            className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 lg:mb-3"
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             transition={{ duration: 0.6, delay: index * 0.2 + 0.3 }}
@@ -44,7 +41,7 @@ const FeatureCard = ({ card, index }) => {
             {card.title}
           </motion.h3>
           <motion.p 
-            className="text-sm text-gray-200 leading-relaxed"
+            className="text-xs sm:text-sm text-gray-200 leading-relaxed px-2 sm:px-0"
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             transition={{ duration: 0.6, delay: index * 0.2 + 0.4 }}
@@ -52,19 +49,16 @@ const FeatureCard = ({ card, index }) => {
             {card.description}
           </motion.p>
           <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, delay: index * 0.2 + 0.5 }}
-          className='z-10'
-        >
-          <MainButton 
-          text={"Explore Now"}
-            
-          />
-        </motion.div>
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.6, delay: index * 0.2 + 0.5 }}
+            className='z-10'
+          >
+            <MainButton 
+              text={"Explore Now"}
+            />
+          </motion.div>
         </div>
-        
-        
       </div>
       
       {/* Hover Effect Overlay */}
@@ -72,4 +66,5 @@ const FeatureCard = ({ card, index }) => {
     </motion.div>
   );
 };
+
 export default FeatureCard;

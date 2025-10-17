@@ -1,6 +1,6 @@
 import React from 'react'
 import { Source_Sans_3 } from "next/font/google"
-import AuthHeader from './components/AuthHeader'
+
 
 const sourceSansPro = Source_Sans_3({
   variable: "--font-source-sans-pro",
@@ -11,7 +11,7 @@ const sourceSansPro = Source_Sans_3({
 const AuthLayout = ({ children }) => {
   return (
     <div className={` min-h-screen  bg-[#2E4346] ${sourceSansPro.variable} font-sans`}> 
-    <AuthHeader />
+
       {children}
     </div>
   )

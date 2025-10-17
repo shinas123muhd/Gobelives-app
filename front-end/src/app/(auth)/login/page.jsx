@@ -4,7 +4,10 @@ import * as Yup from "yup";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Image from "next/image";
-import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -17,9 +20,18 @@ const LoginSchema = Yup.object().shape({
 });
 
 const LoginPage = () => {
-  const handleLogin = (values) => {
-    console.log("Login attempted with:", values);
+  const router = useRouter();
+  const { login } = useAuth();
+
+    const handleLogin = async (values) => {
+    const result = await login(values); // AuthProvider login
+    if (result.success) {
+      router.push("/"); // redirect after successful login
+    } else {
+      console.error(result.error); // handle error (show toast, alert, etc.)
+    }
   };
+
 
   const handleGoogleLogin = () => {
     console.log("Google login attempted");
@@ -154,12 +166,12 @@ const LoginPage = () => {
                   {/* Sign up link */}
                   <p className="text-center text-sm text-[#C4CDCA]">
                     Don't have an account?{" "}
-                    <button
+                    <Link href={"/register"}
                       type="button"
                       className="text-[#F2EEE2] font-medium "
                     >
                       Sign up!
-                    </button>
+                    </Link>
                   </p>
 
                   {/* Social Login Buttons */}

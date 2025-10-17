@@ -10,10 +10,13 @@ import NearBy from './NearBy'
 import RatingsAndReview from './RatingsAndReview'
 import BookingCard from './BookingCard'
 import { useGetPackages } from '../../api/hooks'
+import { useParams } from 'next/navigation';
 
 const page = () => {
-  const { data: packages, isLoading, isError, error } = useGetPackages({id:"68e4aaa1653a8b448aa18ce6"});
+  const { id } = useParams();
+  const { data: packages, isLoading, isError, error } = useGetPackages({id: id});
   console.log(packages)
+
 
     const images = Array(6).fill("/images/Booking1.png");
     console.log(packages?.images)

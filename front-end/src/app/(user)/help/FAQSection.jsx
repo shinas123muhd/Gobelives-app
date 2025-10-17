@@ -99,7 +99,7 @@ const FAQSection = () => {
                       <span className="text-[#E4E4D7] font-bold ">{index + 1}.</span>
                       {item.q}
                     </h3>
-                    <div className="text-[#E4E4D7] leading-relaxed ml-6 text-2xl">
+                    <div className="text-[#E4E4D7] leading-relaxed ml-6 text-xl">
                       {formatAnswer(item.a)}
                     </div>
                   </div>

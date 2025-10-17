@@ -8,7 +8,7 @@ const useLogin = () => {
     mutationFn: async (payload) => {
       // delegates to centralized auth service
       const res = await api.post(LOGIN_USER, payload);
-      return res;
+      return res.data.data;
     },
   });
 };
